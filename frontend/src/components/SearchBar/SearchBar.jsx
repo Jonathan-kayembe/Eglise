@@ -6,13 +6,13 @@ export const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState('');
   const { t } = useTranslation();
 
-  // Recherche en temps réel avec debounce (300ms)
+  // Recherche principale avec debounce très réduit (100ms) pour réactivité maximale
   useEffect(() => {
     const timer = setTimeout(() => {
       if (onSearch) {
         onSearch(query);
       }
-    }, 300);
+    }, 100); // Délai très réduit à 100ms pour réagir immédiatement
 
     return () => clearTimeout(timer);
   }, [query, onSearch]);
@@ -42,7 +42,7 @@ export const SearchBar = ({ onSearch }) => {
           type="text"
           value={query}
           onChange={handleChange}
-          placeholder="Rechercher des sermons, prédicateur, thème, date..."
+          placeholder={t('youtube.searchPlaceholder')}
           className="w-full px-6 py-4 rounded-xl border-2 border-[#D9C5A3] bg-white text-[#5A4632] placeholder-[#7a6a5b] focus:outline-none focus:ring-2 focus:ring-[#D9C5A3] focus:border-[#D9C5A3] transition-all duration-300 shadow-md hover:shadow-lg"
         />
       </div>

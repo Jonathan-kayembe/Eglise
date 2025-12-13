@@ -45,7 +45,7 @@ export const PreacherPage = () => {
   if (!preacher) {
     return (
       <div className="text-center py-20">
-        <p className="text-xl text-gray-600">Prédicateur non trouvé</p>
+        <p className="text-xl text-gray-600">{t('common.preacherNotFound')}</p>
       </div>
     );
   }

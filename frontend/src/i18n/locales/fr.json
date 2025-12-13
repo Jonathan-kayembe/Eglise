@@ -10,7 +10,20 @@
     "minutes": "min",
     "views": "vues",
     "published": "Publié le",
-    "by": "par"
+    "by": "par",
+    "back": "Retour",
+    "notFound": "Non trouvé",
+    "videoNotFound": "Vidéo non trouvée",
+    "preacherNotFound": "Prédicateur non trouvé",
+    "themeNotFound": "Thème non trouvé",
+    "noVideosFound": "Aucune vidéo trouvée",
+    "page": "Page",
+    "of": "sur",
+    "video": "vidéo",
+    "videos": "vidéos",
+    "displayed": "affichée",
+    "displayedPlural": "affichées",
+    "checkBackend": "Assurez-vous que le backend est démarré et que les vidéos ont été synchronisées."
   },
   "nav": {
     "home": "Accueil",
@@ -24,7 +37,11 @@
     "title": "Prédications de l'Église",
     "subtitle": "Découvrez toutes nos prédications",
     "recent": "Récentes",
-    "popular": "Populaires"
+    "popular": "Populaires",
+    "welcome": "Bienvenue",
+    "welcomeMessage": "Partageons la Parole de Dieu ensemble",
+    "discoverSermons": "Découvrez nos prédications",
+    "watchNow": "Regarder maintenant"
   },
   "preacher": {
     "videos": "Vidéos",
@@ -38,6 +55,21 @@
     "suggested": "Suggestions",
     "related": "Vidéos similaires",
     "churchInfo": "Ottawa Christian Tabernacle\nÉglise des croyants du message biblique du temps de la fin.\n\nNotre programme :\nMardi et Jeudi à 19h00 : Rediffusion des prédications en ligne sur notre chaîne\nVendredi à 19h00 : Culte en présentiel\nDimanche à 10h00: Culte en présentiel\n\nNotre adresse : 323 Montréal Rd, Vanier, ON K1L 7C4\nDans le sous sol, en utilisant les portes sur le côté\n\nContacts:\nstudios.oct@gmail.com : Pour vos requêtes, salutations, suggestions ou autres\nottawachristiantabernacle@gmail.com : Pour vos dîmes, offrandes et dons volontaires"
+  },
+  "youtube": {
+    "title": "Prédications",
+    "subtitle": "Découvrez toutes nos dernières prédications et enseignements",
+    "searchPlaceholder": "Rechercher des sermons, prédicateur, thème, date...",
+    "filterByPreacher": "Filtrer par prédicateur",
+    "allPreachers": "Tous les prédicateurs",
+    "resultsCount": "{count} {count, plural, =1 {vidéo} other {vidéos}}",
+    "searchResults": "Résultats de recherche"
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "page": "Page",
+    "of": "sur"
   },
   "footer": {
     "description": "Partageons la Parole de Dieu à travers nos prédications et enseignements.",

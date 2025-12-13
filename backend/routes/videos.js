@@ -1,7 +1,8 @@
 import express from 'express';
 import { query, param } from 'express-validator';
-import { getVideos, getVideoById, getSuggestedVideos } from '../services/videoService.js';
+import { getVideos, getVideoById, getSuggestedVideos, getVideoByYoutubeId, upsertVideo } from '../services/videoService.js';
 import { validateRequest } from '../middleware/validation.js';
+import { fetchAllChannelVideos } from '../services/youtubeService.js';
 
 const router = express.Router();
 
@@ -74,6 +75,83 @@ router.get(
       const videos = await getSuggestedVideos(req.params.id, 6);
       res.json({ videos });
     } catch (error) {
+      next(error);
+    }
+  }
+);
+
+/**
+ * POST /api/videos/sync
+ * Synchroniser les vidéos depuis YouTube
+ */
+router.post(
+  '/sync',
+  async (req, res, next) => {
+    try {
+      console.log('🔄 Démarrage de la synchronisation des vidéos YouTube...');
+      
+      // Récupérer toutes les vidéos de YouTube
+      const youtubeVideos = await fetchAllChannelVideos();
+      console.log(`📥 ${youtubeVideos.length} vidéos récupérées de YouTube`);
+
+      // Fonction pour extraire les tags
+      const extractTags = (description) => {
+        if (!description) return [];
+        const hashtags = description.match(/#[\w]+/g) || [];
+        return hashtags.map(tag => tag.substring(1).toLowerCase());
+      };
+
+      // Insérer ou mettre à jour dans la base de données
+      let created = 0;
+      let updated = 0;
+      let errors = 0;
+
+      for (let i = 0; i < youtubeVideos.length; i++) {
+        const video = youtubeVideos[i];
+        
+        try {
+          // Vérifier si la vidéo existe déjà
+          const existing = await getVideoByYoutubeId(video.videoId);
+          const wasNew = !existing;
+
+          const tags = extractTags(video.description || '');
+
+          await upsertVideo({
+            youtubeId: video.videoId,
+            title: video.title,
+            description: video.description,
+            thumbnail: video.thumbnail,
+            publishedAt: new Date(video.publishedAt),
+            tags: tags,
+            duration: video.duration,
+            viewCount: video.viewCount,
+            preacherId: null,
+            themeId: null
+          });
+
+          if (wasNew) {
+            created++;
+          } else {
+            updated++;
+          }
+        } catch (error) {
+          console.error(`❌ Erreur pour la vidéo ${video.videoId}:`, error.message);
+          errors++;
+        }
+      }
+
+      res.json({
+        success: true,
+        message: 'Synchronisation terminée',
+        stats: {
+          total: youtubeVideos.length,
+          created,
+          updated,
+          errors
+        }
+      });
+    } catch (error) {
+      console.error('❌ Erreur lors de la synchronisation:', error);
       next(error);
     }
   }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { getVideos } from '../../api/videos';
 
 /**
@@ -7,6 +8,7 @@ import { getVideos } from '../../api/videos';
  * Extrait les prédicateurs depuis les vidéos et permet de les filtrer
  */
 export const PreacherFilter = ({ onPreacherSelect, selectedPreacher }) => {
+  const { t } = useTranslation();
   const [preachers, setPreachers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -114,7 +116,7 @@ export const PreacherFilter = ({ onPreacherSelect, selectedPreacher }) => {
     >
       <div className="max-w-7xl mx-auto px-4 py-4 bg-white/50 rounded-lg shadow-sm">
         <h3 className="text-lg font-serif text-[#5A4632] mb-4 text-center">
-          Filtrer par prédicateur
+          {t('youtube.filterByPreacher')}
         </h3>
         <div className="flex flex-wrap gap-2 justify-center max-h-48 overflow-y-auto">
           <button
@@ -125,7 +127,7 @@ export const PreacherFilter = ({ onPreacherSelect, selectedPreacher }) => {
                 : 'bg-white text-[#5A4632] hover:bg-[#F7F0E5] border border-[#5A4632]/20'
             }`}
           >
-            Tous
+            {t('common.all')}
           </button>
           {preachers.map((preacher, index) => (
             <motion.button
