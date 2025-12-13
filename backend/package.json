@@ -1,0 +1,32 @@
+{
+  "name": "eglise-backend",
+  "version": "1.0.0",
+  "description": "Backend API pour le site de prédication de l'église",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "create-db": "node scripts/createDatabase.js",
+    "migrate": "node scripts/migrate.js",
+    "refresh-videos": "node scripts/refreshVideos.js",
+    "list-preachers": "node scripts/listPreachers.js"
+  },
+  "keywords": ["church", "sermons", "youtube", "api"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql2": "^3.6.5",
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "express-validator": "^7.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
+

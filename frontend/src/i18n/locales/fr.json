@@ -1,0 +1,56 @@
+{
+  "common": {
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "all": "Tous",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "noResults": "Aucun résultat",
+    "watch": "Regarder",
+    "minutes": "min",
+    "views": "vues",
+    "published": "Publié le",
+    "by": "par"
+  },
+  "nav": {
+    "home": "Accueil",
+    "youtube": "Prédications",
+    "preachers": "Prédicateurs",
+    "themes": "Thèmes",
+    "about": "À propos",
+    "contact": "Contact"
+  },
+  "home": {
+    "title": "Prédications de l'Église",
+    "subtitle": "Découvrez toutes nos prédications",
+    "recent": "Récentes",
+    "popular": "Populaires"
+  },
+  "preacher": {
+    "videos": "Vidéos",
+    "bio": "Biographie"
+  },
+  "theme": {
+    "videos": "Vidéos sur ce thème"
+  },
+  "video": {
+    "description": "Description",
+    "suggested": "Suggestions",
+    "related": "Vidéos similaires"
+  },
+  "footer": {
+    "description": "Partageons la Parole de Dieu à travers nos prédications et enseignements.",
+    "program": "Programme",
+    "tuesday": "Mardi",
+    "thursday": "Jeudi",
+    "friday": "Vendredi",
+    "sunday": "Dimanche",
+    "address": "Adresse",
+    "basement": "Sous-sol",
+    "contact": "Contact",
+    "emailPrayer": "Prière:",
+    "emailDonations": "Dons:",
+    "rights": "Tous droits réservés."
+  }
+}
+

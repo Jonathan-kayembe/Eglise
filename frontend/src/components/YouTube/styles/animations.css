@@ -1,0 +1,275 @@
+/* ============================================
+   ANIMATIONS PERSONNALISÉES - Style Spirituel
+   ============================================ */
+
+/* Float Soft - Variations verticales pour orbes */
+@keyframes float-soft {
+  0%, 100% {
+    transform: translateY(0) translateX(0) scale(1);
+  }
+  25% {
+    transform: translateY(-8px) translateX(3px) scale(1.02);
+  }
+  50% {
+    transform: translateY(-5px) translateX(-3px) scale(0.98);
+  }
+  75% {
+    transform: translateY(3px) translateX(2px) scale(1.01);
+  }
+}
+
+.float-soft {
+  animation: float-soft 12s ease-in-out infinite;
+}
+
+/* Glow Warm - Lueur douce dorée pulsation lente */
+@keyframes glow-warm {
+  0%, 100% {
+    box-shadow: 
+      0 0 15px rgba(217, 197, 163, 0.25),
+      0 0 30px rgba(217, 197, 163, 0.15),
+      0 0 45px rgba(217, 197, 163, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 25px rgba(217, 197, 163, 0.35),
+      0 0 50px rgba(217, 197, 163, 0.25),
+      0 0 75px rgba(217, 197, 163, 0.15);
+  }
+}
+
+.glow-warm {
+  animation: glow-warm 5s ease-in-out infinite;
+}
+
+/* Sand Gradient Move - Déplacement lent gradient beige → sable */
+@keyframes sand-gradient-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.sand-gradient-move {
+  background: linear-gradient(
+    90deg,
+    #F7F0E5 0%,
+    #E8DCC3 25%,
+    #D9C5A3 50%,
+    #E8DCC3 75%,
+    #F7F0E5 100%
+  );
+  background-size: 200% 100%;
+  animation: sand-gradient-move 8s ease-in-out infinite;
+}
+
+/* Reveal Text - Opacity + Letter Spacing */
+@keyframes reveal-text {
+  0% {
+    opacity: 0;
+    letter-spacing: -0.05em;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    letter-spacing: 0;
+    transform: translateY(0);
+  }
+}
+
+.reveal-text {
+  animation: reveal-text 1.2s ease-out forwards;
+}
+
+.reveal-text-delay-1 {
+  animation: reveal-text 1.2s ease-out 0.15s forwards;
+  opacity: 0;
+}
+
+.reveal-text-delay-2 {
+  animation: reveal-text 1.2s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+.reveal-text-delay-3 {
+  animation: reveal-text 1.2s ease-out 0.45s forwards;
+  opacity: 0;
+}
+
+/* Fade Slide Up - Animation d'entrée typique */
+@keyframes fade-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-slide-up {
+  animation: fade-slide-up 0.8s ease-out backwards;
+}
+
+.fade-slide-up-delay-1 {
+  animation: fade-slide-up 0.8s ease-out 0.12s backwards;
+}
+
+.fade-slide-up-delay-2 {
+  animation: fade-slide-up 0.8s ease-out 0.24s backwards;
+}
+
+.fade-slide-up-delay-3 {
+  animation: fade-slide-up 0.8s ease-out 0.36s backwards;
+}
+
+/* Entrance Spiritual - Slow Fade + Slight Rise */
+@keyframes entrance-spiritual {
+  0% {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.entrance-spiritual {
+  animation: entrance-spiritual 1.4s ease-out backwards;
+}
+
+/* Presence Reveal - Révélation douce */
+@keyframes presence-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.presence-reveal {
+  animation: presence-reveal 1s ease-out backwards;
+}
+
+/* Ink Spread - Effet encre qui se répand */
+@keyframes ink-spread {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.ink-spread {
+  animation: ink-spread 600ms ease-out;
+}
+
+/* Blur to Sharpen - Lazy loading fluide */
+@keyframes blur-to-sharpen {
+  0% {
+    filter: blur(10px);
+    opacity: 0.7;
+  }
+  100% {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+.blur-to-sharpen {
+  animation: blur-to-sharpen 0.8s ease-out;
+}
+
+/* Background Gradient Slow - Animation très lente */
+@keyframes background-gradient-slow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.background-gradient-slow {
+  background: linear-gradient(
+    135deg,
+    #F7F0E5 0%,
+    #E8DCC3 25%,
+    #F5EEDC 50%,
+    #E8DCC3 75%,
+    #F7F0E5 100%
+  );
+  background-size: 200% 200%;
+  animation: background-gradient-slow 60s ease-in-out infinite;
+}
+
+/* Cascade Animation - Apparition en cascade */
+@keyframes cascade-appear {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cascade-1 {
+  animation: cascade-appear 0.6s ease-out 0.12s backwards;
+}
+
+.cascade-2 {
+  animation: cascade-appear 0.6s ease-out 0.14s backwards;
+}
+
+.cascade-3 {
+  animation: cascade-appear 0.6s ease-out 0.16s backwards;
+}
+
+.cascade-4 {
+  animation: cascade-appear 0.6s ease-out 0.18s backwards;
+}
+
+.cascade-5 {
+  animation: cascade-appear 0.6s ease-out 0.20s backwards;
+}
+
+.cascade-6 {
+  animation: cascade-appear 0.6s ease-out 0.22s backwards;
+}
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

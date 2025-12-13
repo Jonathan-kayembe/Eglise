@@ -1,0 +1,120 @@
+/* Import des styles premium - DOIT être avant @tailwind */
+@import './components/YouTube/styles/effects.css';
+@import './components/YouTube/styles/animations.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Palette beige premium */
+:root {
+  --beige: #F7F0E5;
+  --sand: #E8DCC3;
+  --taupe: #CBB89D;
+  --brown: #5A4632;
+  --gold: #D9C5A3;
+}
+
+/* Helper pour aspect ratio si plugin non disponible */
+.aspect-w-16 {
+  position: relative;
+  padding-bottom: 56.25%;
+}
+
+.aspect-w-16 > iframe,
+.aspect-w-16 > img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  object-fit: cover;
+}
+
+@layer base {
+  body {
+    @apply bg-beige text-black-deep font-sans antialiased;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gold text-black-deep px-6 py-3 rounded-lg font-medium 
+           transition-all duration-300 hover:bg-opacity-90 hover:scale-105 
+           active:scale-95 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-black-deep px-6 py-3 rounded-lg font-medium 
+           transition-all duration-300 hover:bg-opacity-90 hover:scale-105 
+           active:scale-95 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-lg overflow-hidden 
+           transition-all duration-300 hover:shadow-2xl hover:scale-105;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-lg border border-gold bg-white 
+           focus:outline-none focus:ring-2 focus:ring-gold focus:border-transparent 
+           transition-all duration-300;
+  }
+}
+
+/* Styles pour le carrousel Swiper */
+.video-carousel .swiper-button-next,
+.video-carousel .swiper-button-prev {
+  color: #5A4632 !important;
+  z-index: 20 !important;
+  width: 48px !important;
+  height: 48px !important;
+  margin-top: -24px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.video-carousel .swiper-button-next:hover,
+.video-carousel .swiper-button-prev:hover {
+  background: rgba(255, 255, 255, 1) !important;
+  transform: scale(1.1) !important;
+}
+
+.video-carousel .swiper-button-next::after,
+.video-carousel .swiper-button-prev::after {
+  font-size: 20px !important;
+  font-weight: bold !important;
+}
+
+.video-carousel .swiper-pagination-bullet {
+  background: #D9C5A3 !important;
+  width: 12px !important;
+  height: 12px !important;
+  margin: 0 6px !important;
+}
+
+.video-carousel .swiper-pagination-bullet-active {
+  background: #5A4632 !important;
+  width: 24px !important;
+  border-radius: 6px !important;
+}
+

@@ -1,0 +1,228 @@
+/* ============================================
+   VIDEO CAROUSEL - Swiper Premium Customization
+   ============================================ */
+
+.video-carousel-container {
+  position: relative;
+  width: 100%;
+  margin: var(--spacing-xl) 0;
+  padding: var(--spacing-md) 0;
+}
+
+.video-carousel-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+}
+
+/* Swiper Container */
+.video-carousel-swiper {
+  padding-bottom: var(--spacing-xl) !important;
+  overflow: visible !important;
+}
+
+.video-carousel-swiper :global(.swiper-wrapper) {
+  align-items: stretch;
+}
+
+.video-carousel-swiper :global(.swiper-slide) {
+  height: auto;
+  display: flex;
+  transition: transform var(--transition-base);
+}
+
+/* Navigation Arrows - Premium Design */
+.video-carousel-swiper :global(.swiper-button-next),
+.video-carousel-swiper :global(.swiper-button-prev) {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-primary);
+  transition: all var(--transition-base);
+  margin-top: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: var(--z-overlay);
+}
+
+.video-carousel-swiper :global(.swiper-button-next) {
+  right: -24px;
+}
+
+.video-carousel-swiper :global(.swiper-button-prev) {
+  left: -24px;
+}
+
+.video-carousel-swiper :global(.swiper-button-next::after),
+.video-carousel-swiper :global(.swiper-button-prev::after) {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.video-carousel-swiper :global(.swiper-button-next):hover,
+.video-carousel-swiper :global(.swiper-button-prev):hover {
+  background: var(--color-primary);
+  color: white;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: var(--shadow-xl);
+}
+
+.video-carousel-swiper :global(.swiper-button-next):active,
+.video-carousel-swiper :global(.swiper-button-prev):active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.video-carousel-swiper :global(.swiper-button-disabled) {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Pagination - Modern Dots */
+.video-carousel-swiper :global(.swiper-pagination) {
+  bottom: 0 !important;
+  position: relative;
+  margin-top: var(--spacing-lg);
+}
+
+.video-carousel-swiper :global(.swiper-pagination-bullet) {
+  width: 12px;
+  height: 12px;
+  background: var(--color-text-muted);
+  opacity: 0.4;
+  transition: all var(--transition-base);
+  margin: 0 6px;
+}
+
+.video-carousel-swiper :global(.swiper-pagination-bullet-active) {
+  width: 32px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  opacity: 1;
+  box-shadow: 0 2px 8px rgba(212, 185, 138, 0.4);
+}
+
+/* Progress Bar (optionnel) */
+.video-carousel-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: var(--z-overlay);
+}
+
+.video-carousel-progress-bar {
+  height: 100%;
+  background: var(--color-primary);
+  transition: width 0.3s linear;
+  box-shadow: 0 0 10px rgba(212, 185, 138, 0.5);
+}
+
+/* Slide Animation */
+.video-carousel-swiper :global(.swiper-slide-active) {
+  transform: scale(1.02);
+  z-index: var(--z-base);
+}
+
+.video-carousel-swiper :global(.swiper-slide) {
+  opacity: 0.7;
+  transition: opacity var(--transition-base);
+}
+
+.video-carousel-swiper :global(.swiper-slide-active) {
+  opacity: 1;
+}
+
+/* Responsive Navigation */
+@media (max-width: 1024px) {
+  .video-carousel-swiper :global(.swiper-button-next),
+  .video-carousel-swiper :global(.swiper-button-prev) {
+    width: 40px;
+    height: 40px;
+    right: -20px;
+    left: -20px;
+  }
+
+  .video-carousel-swiper :global(.swiper-button-next::after),
+  .video-carousel-swiper :global(.swiper-button-prev::after) {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .video-carousel-swiper :global(.swiper-button-next),
+  .video-carousel-swiper :global(.swiper-button-prev) {
+    width: 36px;
+    height: 36px;
+    right: -12px;
+    left: -12px;
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .video-carousel-swiper :global(.swiper-pagination) {
+    margin-top: var(--spacing-md);
+  }
+
+  .video-carousel-swiper :global(.swiper-pagination-bullet) {
+    width: 8px;
+    height: 8px;
+    margin: 0 4px;
+  }
+
+  .video-carousel-swiper :global(.swiper-pagination-bullet-active) {
+    width: 24px;
+    height: 8px;
+  }
+}
+
+/* Touch Indicators */
+.video-carousel-swiper :global(.swiper-slide) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Autoplay Pause Indicator */
+.video-carousel-paused {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  z-index: var(--z-overlay);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  pointer-events: none;
+}
+
+.video-carousel-container:hover .video-carousel-paused {
+  opacity: 1;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .video-carousel-swiper :global(.swiper-slide) {
+    transition: none;
+  }
+
+  .video-carousel-swiper :global(.swiper-button-next),
+  .video-carousel-swiper :global(.swiper-button-prev) {
+    transition: none;
+  }
+}
+
+/* Focus States */
+.video-carousel-swiper :global(.swiper-button-next):focus-visible,
+.video-carousel-swiper :global(.swiper-button-prev):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+

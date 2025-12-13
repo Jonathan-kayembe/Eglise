@@ -1,0 +1,56 @@
+{
+  "common": {
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "loading": "Loading...",
+    "error": "Error",
+    "noResults": "No results",
+    "watch": "Watch",
+    "minutes": "min",
+    "views": "views",
+    "published": "Published on",
+    "by": "by"
+  },
+  "nav": {
+    "home": "Home",
+    "youtube": "Sermons",
+    "preachers": "Preachers",
+    "themes": "Themes",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "home": {
+    "title": "Church Sermons",
+    "subtitle": "Discover all our sermons",
+    "recent": "Recent",
+    "popular": "Popular"
+  },
+  "preacher": {
+    "videos": "Videos",
+    "bio": "Biography"
+  },
+  "theme": {
+    "videos": "Videos on this theme"
+  },
+  "video": {
+    "description": "Description",
+    "suggested": "Suggestions",
+    "related": "Related videos"
+  },
+  "footer": {
+    "description": "Sharing the Word of God through our sermons and teachings.",
+    "program": "Program",
+    "tuesday": "Tuesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "sunday": "Sunday",
+    "address": "Address",
+    "basement": "Basement",
+    "contact": "Contact",
+    "emailPrayer": "Prayer:",
+    "emailDonations": "Donations:",
+    "rights": "All rights reserved."
+  }
+}
+

@@ -1,0 +1,508 @@
+/* ============================================
+   EFFETS VISUELS PREMIUM - Style Église
+   ============================================ */
+
+/* ============================================
+   1. EFFETS DE TEXTE
+   ============================================ */
+
+/* Dégradé animé sable + or doux */
+@keyframes sand-gradient-move {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.text-gradient-sand {
+  background: linear-gradient(
+    90deg,
+    #F7F0E5 0%,
+    #E8DCC3 25%,
+    #D9C5A3 50%,
+    #E8DCC3 75%,
+    #F7F0E5 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: sand-gradient-move 8s ease-in-out infinite;
+}
+
+/* Soft Glow - Halo lumineux doux */
+.text-glow-soft {
+  text-shadow: 
+    0 0 10px rgba(217, 197, 163, 0.3),
+    0 0 20px rgba(217, 197, 163, 0.2),
+    0 0 30px rgba(217, 197, 163, 0.1);
+}
+
+/* Effet Révélation - Fade + Letter Spacing */
+@keyframes reveal-text {
+  0% {
+    opacity: 0;
+    letter-spacing: -0.05em;
+  }
+  100% {
+    opacity: 1;
+    letter-spacing: 0;
+  }
+}
+
+.text-reveal {
+  animation: reveal-text 1.2s ease-out forwards;
+}
+
+.text-reveal-delay-1 {
+  animation: reveal-text 1.2s ease-out 0.1s forwards;
+  opacity: 0;
+}
+
+.text-reveal-delay-2 {
+  animation: reveal-text 1.2s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.text-reveal-delay-3 {
+  animation: reveal-text 1.2s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+/* ============================================
+   2. EFFETS DE CARTES
+   ============================================ */
+
+/* Effet Papier Premium */
+.card-paper-premium {
+  background: #FFFFFF;
+  border-radius: 18px;
+  box-shadow: 
+    0 2px 8px rgba(90, 70, 50, 0.08),
+    0 8px 24px rgba(90, 70, 50, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-paper-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 50%,
+    rgba(232, 220, 195, 0.1) 100%
+  );
+  pointer-events: none;
+}
+
+/* Glassmorphism Beige */
+.card-glass-beige {
+  background: rgba(247, 240, 229, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(217, 197, 163, 0.4);
+  border-radius: 18px;
+  box-shadow: 
+    0 8px 32px rgba(90, 70, 50, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Effet de profondeur liturgique */
+.card-depth-liturgical {
+  transition: all 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.card-depth-liturgical:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 4px 12px rgba(90, 70, 50, 0.12),
+    0 12px 40px rgba(90, 70, 50, 0.08),
+    0 0 0 1px rgba(217, 197, 163, 0.2);
+}
+
+/* Animation d'entrée en cascade */
+@keyframes fade-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-cascade-1 {
+  animation: fade-slide-up 0.6s ease-out 0.12s backwards;
+}
+
+.card-cascade-2 {
+  animation: fade-slide-up 0.6s ease-out 0.14s backwards;
+}
+
+.card-cascade-3 {
+  animation: fade-slide-up 0.6s ease-out 0.16s backwards;
+}
+
+.card-cascade-4 {
+  animation: fade-slide-up 0.6s ease-out 0.18s backwards;
+}
+
+.card-cascade-5 {
+  animation: fade-slide-up 0.6s ease-out 0.20s backwards;
+}
+
+.card-cascade-6 {
+  animation: fade-slide-up 0.6s ease-out 0.22s backwards;
+}
+
+/* ============================================
+   3. EFFETS DE BOUTONS
+   ============================================ */
+
+/* Bouton Noble / Élégant */
+.btn-noble {
+  background: #F5EEDC;
+  color: #5A4632;
+  border: 1.5px solid #D9C5A3;
+  border-radius: 12px;
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 2px 4px rgba(90, 70, 50, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.btn-noble::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(217, 197, 163, 0.2),
+    transparent
+  );
+  transition: left 400ms ease;
+}
+
+.btn-noble:hover {
+  background: linear-gradient(
+    180deg,
+    #F7F0E5 0%,
+    #F0E6D4 100%
+  );
+  border-color: #D9C5A3;
+  box-shadow: 
+    0 4px 12px rgba(90, 70, 50, 0.12),
+    0 0 0 1px rgba(217, 197, 163, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transform: translateY(-2px);
+}
+
+.btn-noble:hover::before {
+  left: 100%;
+}
+
+.btn-noble:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 2px 4px rgba(90, 70, 50, 0.1),
+    inset 0 1px 2px rgba(90, 70, 50, 0.1);
+}
+
+/* Animation Ink Spread */
+@keyframes ink-spread {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.btn-noble::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(217, 197, 163, 0.3);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.btn-noble:active::after {
+  width: 300px;
+  height: 300px;
+  animation: ink-spread 600ms ease-out;
+}
+
+/* ============================================
+   4. ARRIÈRE-PLANS
+   ============================================ */
+
+/* Fond dégradé beige animé */
+@keyframes background-gradient-slow {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.bg-gradient-animated {
+  background: linear-gradient(
+    135deg,
+    #F7F0E5 0%,
+    #E8DCC3 25%,
+    #F5EEDC 50%,
+    #E8DCC3 75%,
+    #F7F0E5 100%
+  );
+  background-size: 200% 200%;
+  animation: background-gradient-slow 60s ease-in-out infinite;
+}
+
+/* Orbes flottants effet light ambience */
+@keyframes float-soft {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  33% {
+    transform: translateY(-10px) translateX(5px);
+  }
+  66% {
+    transform: translateY(5px) translateX(-5px);
+  }
+}
+
+.orb-float {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(232, 220, 195, 0.4) 0%,
+    rgba(232, 220, 195, 0.1) 50%,
+    transparent 100%
+  );
+  filter: blur(40px);
+  pointer-events: none;
+  animation: float-soft 15s ease-in-out infinite;
+}
+
+.orb-1 {
+  width: 300px;
+  height: 300px;
+  top: 10%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 200px;
+  height: 200px;
+  top: 60%;
+  right: 15%;
+  animation-delay: 5s;
+}
+
+.orb-3 {
+  width: 250px;
+  height: 250px;
+  bottom: 20%;
+  left: 50%;
+  animation-delay: 10s;
+}
+
+/* Texture papier d'église */
+.bg-paper-texture {
+  background: 
+    linear-gradient(135deg, rgba(247, 240, 229, 0.98) 0%, rgba(232, 220, 195, 0.95) 100%),
+    url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%235A4632' fill-opacity='0.015' fill-rule='evenodd'/%3E%3C/svg%3E");
+  background-size: 100px 100px;
+}
+
+/* ============================================
+   5. GLOW WARM - Lueur douce dorée
+   ============================================ */
+
+@keyframes glow-warm {
+  0%, 100% {
+    box-shadow: 
+      0 0 20px rgba(217, 197, 163, 0.3),
+      0 0 40px rgba(217, 197, 163, 0.2),
+      0 0 60px rgba(217, 197, 163, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 30px rgba(217, 197, 163, 0.4),
+      0 0 60px rgba(217, 197, 163, 0.3),
+      0 0 90px rgba(217, 197, 163, 0.2);
+  }
+}
+
+.glow-warm {
+  animation: glow-warm 4s ease-in-out infinite;
+}
+
+/* ============================================
+   6. EFFETS D'IMAGE
+   ============================================ */
+
+/* Zoom lent au survol */
+.img-zoom-soft {
+  transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.img-zoom-soft:hover {
+  transform: scale(1.04);
+}
+
+/* Overlay dégradé beige transparent */
+.img-overlay-beige {
+  position: relative;
+}
+
+.img-overlay-beige::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(247, 240, 229, 0.3) 0%,
+    rgba(232, 220, 195, 0.2) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+.img-overlay-beige:hover::after {
+  opacity: 0.6;
+}
+
+/* Lazy loading fluide - Blur to Sharpen */
+@keyframes blur-to-sharpen {
+  0% {
+    filter: blur(10px);
+    opacity: 0.7;
+  }
+  100% {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+.img-lazy-load {
+  animation: blur-to-sharpen 0.6s ease-out;
+}
+
+/* ============================================
+   7. SCROLLBAR PERSONNALISÉE
+   ============================================ */
+
+/* Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F2E8D5;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C9B79A;
+  border-radius: 10px;
+  border: 2px solid #F2E8D5;
+  transition: background 300ms ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B8A589;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #C9B79A #F2E8D5;
+}
+
+/* ============================================
+   8. THÈME SOMBRE - Soirée de louange
+   ============================================ */
+
+[data-theme="dark"] {
+  --color-bg: #1A2330;
+  --color-bg-secondary: #243040;
+  --color-text: #F5EEDC;
+  --color-text-secondary: #E8DCC3;
+  --color-primary: #C9A86A;
+}
+
+[data-theme="dark"] .bg-gradient-animated {
+  background: linear-gradient(
+    135deg,
+    #1A2330 0%,
+    #243040 25%,
+    #1B2A3A 50%,
+    #243040 75%,
+    #1A2330 100%
+  );
+}
+
+[data-theme="dark"] .card-glass-beige {
+  background: rgba(26, 35, 48, 0.75);
+  border-color: rgba(201, 168, 106, 0.3);
+}
+
+[data-theme="dark"] .btn-noble {
+  background: #243040;
+  color: #F5EEDC;
+  border-color: #C9A86A;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #1A2330;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #C9A86A;
+  border-color: #1A2330;
+}
+
+/* Transition thème */
+* {
+  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
+}
+
