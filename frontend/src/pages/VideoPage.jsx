@@ -142,6 +142,13 @@ export const VideoPage = () => {
               </div>
             )}
 
+            {/* Description standard de l'église */}
+            <div className="prose max-w-none mb-8 mt-8 pt-8 border-t border-gray-200">
+              <p className="text-gray-700 whitespace-pre-line leading-relaxed">
+                {t('video.churchInfo')}
+              </p>
+            </div>
+
             {video.tags && video.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {video.tags.map((tag, index) => (
