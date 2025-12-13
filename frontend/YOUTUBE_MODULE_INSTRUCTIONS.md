@@ -19,15 +19,17 @@ cd frontend
 npm install swiper
 ```
 
-### 2. Configurer la clé API YouTube
+### 2. Configuration de l'API (SÉCURISÉ)
+
+**⚠️ IMPORTANT SÉCURITÉ** : Les clés API YouTube ne doivent JAMAIS être exposées côté frontend.
 
 Créez ou modifiez le fichier `.env` dans le dossier `frontend` :
 
 ```env
-VITE_YOUTUBE_API_KEY=AIzaSyDmoa5ZZcQzd5jg0beCJiYCMHDTaSYHNvA
+VITE_API_URL=http://localhost:3001
 ```
 
-**⚠️ Important** : Les variables d'environnement Vite doivent commencer par `VITE_`
+**Note** : Tous les appels à l'API YouTube passent maintenant par le backend pour des raisons de sécurité. La clé API est uniquement configurée côté serveur.
 
 ### 3. Redémarrer le serveur de développement
 
@@ -206,9 +208,13 @@ Chaque vidéo retournée contient :
 
 ### Erreur : "YOUTUBE_API_KEY n'est pas définie"
 
-1. Vérifiez que le fichier `.env` existe dans `frontend/`
-2. Vérifiez que la variable commence par `VITE_`
-3. Redémarrez le serveur de développement
+Cette erreur ne devrait plus se produire car les appels API passent par le backend.
+
+Si vous rencontrez des erreurs :
+1. Vérifiez que le backend est démarré et accessible
+2. Vérifiez que `VITE_API_URL` est correctement configuré dans `frontend/.env`
+3. Vérifiez que `YOUTUBE_API_KEY` est configuré dans `backend/.env` (côté serveur uniquement)
+4. Redémarrez le serveur de développement
 
 ### Le carrousel ne s'affiche pas
 
@@ -226,8 +232,8 @@ Chaque vidéo retournée contient :
 ## 📝 Notes importantes
 
 - **Quotas API** : L'API YouTube a des limites de requêtes (10000/jour par défaut)
-- **CORS** : Les appels se font directement depuis le navigateur
-- **Sécurité** : La clé API est exposée côté client (normal pour Vite)
+- **CORS** : Les appels se font via le backend (proxy)
+- **Sécurité** : ✅ La clé API est uniquement côté serveur, jamais exposée au client
 - **Performance** : Les images sont chargées en lazy loading
 
 ## 🎨 Personnalisation avancée
@@ -256,8 +262,10 @@ breakpoints={{
 ## ✅ Checklist d'intégration
 
 - [ ] Swiper installé (`npm install swiper`)
-- [ ] Fichier `.env` créé avec `VITE_YOUTUBE_API_KEY`
-- [ ] Serveur redémarré après modification du `.env`
+- [ ] Backend configuré avec `YOUTUBE_API_KEY` dans `backend/.env`
+- [ ] Fichier `frontend/.env` créé avec `VITE_API_URL`
+- [ ] Backend démarré et accessible
+- [ ] Serveur frontend redémarré après modification du `.env`
 - [ ] Route `/youtube` accessible
 - [ ] Vidéos s'affichent correctement
 - [ ] Carrousel fonctionne (flèches, pagination, autoplay)

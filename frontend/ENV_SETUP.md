@@ -1,22 +1,32 @@
 # Configuration des variables d'environnement
 
-Créez un fichier `.env` à la racine du dossier `frontend` avec les variables suivantes :
+⚠️ **IMPORTANT SÉCURITÉ** : Les clés API YouTube ne doivent **JAMAIS** être exposées côté frontend.
+
+## Configuration Frontend
+
+Créez un fichier `.env` à la racine du dossier `frontend` avec la variable suivante :
 
 ```env
-# Clé API YouTube
-# Obtenez votre clé sur : https://console.cloud.google.com/apis/credentials
-VITE_YOUTUBE_API_KEY=ta_cle_api
-
-# ID de la chaîne YouTube
-# Format: UCRjaG7N4qnlMsRnejOkHuHQ
-VITE_YOUTUBE_CHANNEL_ID=UCRjaG7N4qnlMsRnejOkHuHQ
+# URL de l'API backend
+VITE_API_URL=http://localhost:3001
 ```
 
-## Instructions
+## Architecture Sécurisée
 
-1. Copiez le contenu ci-dessus dans un fichier `.env` à la racine du dossier `frontend`
-2. Remplacez `ta_cle_api` par votre vraie clé API YouTube
-3. Le `VITE_YOUTUBE_CHANNEL_ID` est déjà configuré par défaut dans le code, mais vous pouvez le personnaliser
+Tous les appels à l'API YouTube passent maintenant par le **backend** pour des raisons de sécurité :
+
+- ✅ La clé API YouTube est uniquement configurée côté serveur (`backend/.env`)
+- ✅ Le frontend communique uniquement avec le backend via `VITE_API_URL`
+- ✅ Aucune clé API n'est exposée au client
+
+## Configuration Backend
+
+La clé API YouTube doit être configurée dans `backend/.env` :
+
+```env
+YOUTUBE_API_KEY=votre_cle_api_youtube
+YOUTUBE_CHANNEL_ID=votre_channel_id
+```
 
 ## Obtenir une clé API YouTube
 
@@ -24,5 +34,10 @@ VITE_YOUTUBE_CHANNEL_ID=UCRjaG7N4qnlMsRnejOkHuHQ
 2. Créez un projet ou sélectionnez un projet existant
 3. Activez l'API YouTube Data API v3
 4. Créez des identifiants (clé API)
-5. Copiez la clé dans votre fichier `.env`
+5. Copiez la clé dans votre fichier `backend/.env` (pas dans le frontend !)
+
+## Voir aussi
+
+- `../SECURITE.md` : Guide complet de sécurité
+- `backend/.env.example` : Modèle de configuration backend
 

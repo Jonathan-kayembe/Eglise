@@ -2,10 +2,12 @@
 
 ## Variables d'environnement configurées
 
-Votre fichier `.env` dans le dossier `backend` a été créé avec :
+Votre fichier `.env` dans le dossier `backend` doit être créé à partir de `.env.example` :
 
-- **Clé API YouTube** : ✅ Configurée
-- **ID de la chaîne YouTube** : `UCRjaG7N4qnlMsRnejOkHuHQ`
+- **Clé API YouTube** : À configurer dans `backend/.env`
+- **ID de la chaîne YouTube** : À configurer dans `backend/.env`
+
+⚠️ **IMPORTANT** : Ne jamais commiter le fichier `.env` sur Git. Utilisez `.env.example` comme modèle.
 
 ## 📝 Prochaines étapes
 

@@ -163,10 +163,14 @@ docker-compose up -d
 
 ## 🔐 Sécurité
 
-- Les clés API sont stockées côté serveur uniquement
-- Rate limiting sur les endpoints API
-- Validation des inputs
-- Variables d'environnement pour les credentials
+- ✅ Les clés API sont stockées côté serveur uniquement (jamais exposées au frontend)
+- ✅ Rate limiting sur les endpoints API
+- ✅ Validation des inputs
+- ✅ Variables d'environnement pour les credentials
+- ✅ Fichiers `.env` exclus de Git via `.gitignore`
+- ✅ Fichiers `.env.example` avec valeurs fictives uniquement
+
+📖 **Voir [SECURITE.md](SECURITE.md) pour le guide complet de sécurité et les bonnes pratiques**
 
 ## 📄 Licence
 
