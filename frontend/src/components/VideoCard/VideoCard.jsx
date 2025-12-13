@@ -6,6 +6,12 @@ export const VideoCard = ({ video, index = 0 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
+  // Vérifier que la vidéo est valide
+  if (!video) {
+    console.warn('VideoCard: vidéo invalide', video);
+    return null;
+  }
+
   const formatDuration = (seconds) => {
     if (!seconds) return '';
     const mins = Math.floor(seconds / 60);
@@ -42,12 +48,21 @@ export const VideoCard = ({ video, index = 0 }) => {
     >
       <div>
         <div className="relative aspect-video overflow-hidden bg-black-deep">
-          <img
-            src={video.thumbnail}
-            alt={video.title}
-            className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-            loading="lazy"
-          />
+          {video.thumbnail ? (
+            <img
+              src={video.thumbnail}
+              alt={video.title || 'Vidéo'}
+              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+              loading="lazy"
+              onError={(e) => {
+                e.target.src = 'https://via.placeholder.com/640x360?text=Video';
+              }}
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+              <span className="text-gray-500">Pas de miniature</span>
+            </div>
+          )}
           {video.duration > 0 && (
             <div className="absolute bottom-2 right-2 bg-black-deep bg-opacity-80 text-white px-2 py-1 rounded text-sm">
               {formatDuration(video.duration)}
@@ -56,7 +71,7 @@ export const VideoCard = ({ video, index = 0 }) => {
         </div>
         <div className="p-4">
           <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2 text-black-deep">
-            {video.title}
+            {video.title || 'Sans titre'}
           </h3>
           <div className="flex items-center justify-between text-sm text-gray-600">
             {video.preacher && (

@@ -10,7 +10,20 @@
     "minutes": "min",
     "views": "views",
     "published": "Published on",
-    "by": "by"
+    "by": "by",
+    "back": "Back",
+    "notFound": "Not found",
+    "videoNotFound": "Video not found",
+    "preacherNotFound": "Preacher not found",
+    "themeNotFound": "Theme not found",
+    "noVideosFound": "No videos found",
+    "page": "Page",
+    "of": "of",
+    "video": "video",
+    "videos": "videos",
+    "displayed": "displayed",
+    "displayedPlural": "displayed",
+    "checkBackend": "Make sure the backend is started and videos have been synchronized."
   },
   "nav": {
     "home": "Home",
@@ -24,7 +37,11 @@
     "title": "Church Sermons",
     "subtitle": "Discover all our sermons",
     "recent": "Recent",
-    "popular": "Popular"
+    "popular": "Popular",
+    "welcome": "Welcome",
+    "welcomeMessage": "Let's share the Word of God together",
+    "discoverSermons": "Discover our sermons",
+    "watchNow": "Watch now"
   },
   "preacher": {
     "videos": "Videos",
@@ -38,6 +55,21 @@
     "suggested": "Suggestions",
     "related": "Related videos",
     "churchInfo": "Ottawa Christian Tabernacle\nChurch of the end-time biblical message believers.\n\nOur program:\nTuesday and Thursday at 7:00 PM: Online sermon rebroadcast on our channel\nFriday at 7:00 PM: In-person service\nSunday at 10:00 AM: In-person service\n\nOur address: 323 Montréal Rd, Vanier, ON K1L 7C4\nIn the basement, using the side doors\n\nContacts:\nstudios.oct@gmail.com : For your requests, greetings, suggestions or others\nottawachristiantabernacle@gmail.com : For your tithes, offerings and voluntary donations"
+  },
+  "youtube": {
+    "title": "Sermons",
+    "subtitle": "Discover all our latest sermons and teachings",
+    "searchPlaceholder": "Search sermons, preacher, theme, date...",
+    "filterByPreacher": "Filter by preacher",
+    "allPreachers": "All preachers",
+    "resultsCount": "{count} {count, plural, =1 {video} other {videos}}",
+    "searchResults": "Search results"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "of": "of"
   },
   "footer": {
     "description": "Sharing the Word of God through our sermons and teachings.",

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { VideoCard } from './VideoCard';
 
 export default function VideoGrid({ videos, loading, totalPages: externalTotalPages, currentPage: externalCurrentPage, onPageChange }) {
+  const { t } = useTranslation();
   const [currentPage, setCurrentPage] = useState(externalCurrentPage || 1);
   const [videosPerPage, setVideosPerPage] = useState(12);
 
@@ -113,10 +115,19 @@ export default function VideoGrid({ videos, loading, totalPages: externalTotalPa
     return pages;
   };
 
+  // Debug: vérifier les vidéos reçues
+  console.log('🎬 VideoGrid - Vidéos reçues:', videos);
+  console.log('🎬 VideoGrid - Nombre de vidéos:', videos?.length);
+  
   if (!videos || videos.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 text-center py-12">
-        <p className="text-[#7a6a5b] text-lg">Aucune vidéo trouvée</p>
+        <p className="text-[#7a6a5b] text-lg">{t('common.noVideosFound')}</p>
+        {!loading && (
+          <p className="text-[#7a6a5b] text-sm mt-2">
+            {t('common.checkBackend')}
+          </p>
+        )}
       </div>
     );
   }
@@ -125,16 +136,27 @@ export default function VideoGrid({ videos, loading, totalPages: externalTotalPa
     <div className="max-w-7xl mx-auto px-4">
       {/* Grille des vidéos */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {currentVideos.map(v => (
-          <VideoCard key={v.videoId} video={v} />
-        ))}
+        {currentVideos.map((v, index) => {
+          // Vérifier que la vidéo a les propriétés nécessaires
+          if (!v || (!v.videoId && !v.id)) {
+            console.warn('⚠️ Vidéo invalide:', v);
+            return null;
+          }
+          return (
+            <VideoCard 
+              key={v.id || v.videoId || `video-${index}`} 
+              video={v} 
+              index={index}
+            />
+          );
+        })}
       </div>
 
       {/* Indicateur de chargement */}
       {loading && (
         <div className="text-center py-8">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#5A4632]"></div>
-          <p className="text-[#7a6a5b] mt-2">Chargement...</p>
+          <p className="text-[#7a6a5b] mt-2">{t('common.loading')}</p>
         </div>
       )}
 
@@ -143,12 +165,12 @@ export default function VideoGrid({ videos, loading, totalPages: externalTotalPa
         <div className="flex flex-col items-center gap-4 mt-8 pt-8 border-t border-[#5A4632]/10">
           {/* Informations de pagination */}
           <div className="text-sm text-[#7a6a5b]">
-            Page {activePage} sur {totalPages}
+            {t('pagination.page')} {activePage} {t('pagination.of')} {totalPages}
             {useExternalPagination && videos.length > 0 && (
-              <span> ({videos.length} vidéo{videos.length > 1 ? 's' : ''} affichée{videos.length > 1 ? 's' : ''})</span>
+              <span> ({videos.length} {videos.length > 1 ? t('common.videos') : t('common.video')} {videos.length > 1 ? t('common.displayedPlural') : t('common.displayed')})</span>
             )}
             {!useExternalPagination && (
-              <span> ({videos.length} vidéo{videos.length > 1 ? 's' : ''})</span>
+              <span> ({videos.length} {videos.length > 1 ? t('common.videos') : t('common.video')})</span>
             )}
           </div>
 
@@ -163,9 +185,9 @@ export default function VideoGrid({ videos, loading, totalPages: externalTotalPa
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   : 'bg-[#5A4632] text-white hover:bg-[#4a3822] active:scale-95'
               }`}
-              aria-label="Page précédente"
+              aria-label={t('pagination.previous')}
             >
-              Précédent
+              {t('pagination.previous')}
             </button>
 
             {/* Numéros de page */}
@@ -205,9 +227,9 @@ export default function VideoGrid({ videos, loading, totalPages: externalTotalPa
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   : 'bg-[#5A4632] text-white hover:bg-[#4a3822] active:scale-95'
               }`}
-              aria-label="Page suivante"
+              aria-label={t('pagination.next')}
             >
-              Suivant
+              {t('pagination.next')}
             </button>
           </div>
         </div>

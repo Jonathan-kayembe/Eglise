@@ -39,13 +39,19 @@ export const YouTubePage = () => {
       // Si une recherche est effectuée, utiliser l'API de recherche globale
       let result;
       if (search && search.trim() !== '') {
-        const searchResult = await searchAPI(search.trim(), {
-          limit: 12,
-          page: page
-        });
-        if (searchResult.videos && searchResult.videos.videos) {
-          result = searchResult.videos;
-        } else {
+        try {
+          const searchResult = await searchAPI(search.trim(), {
+            limit: 12,
+            page: page
+          });
+          // La réponse de l'API de recherche a la structure: { videos: { videos: [...], pagination: {...} }, preachers: [...], themes: [...] }
+          if (searchResult && searchResult.videos) {
+            result = searchResult.videos;
+          } else {
+            result = { videos: [], pagination: { page, totalPages: 1, total: 0 } };
+          }
+        } catch (searchError) {
+          console.error('Erreur lors de la recherche:', searchError);
           result = { videos: [], pagination: { page, totalPages: 1, total: 0 } };
         }
       } else {
@@ -61,9 +67,31 @@ export const YouTubePage = () => {
         });
       }
       
-      if (result && result.videos && result.videos.length > 0) {
+      console.log('📊 Résultat API complet:', JSON.stringify(result, null, 2));
+      console.log('📹 Vidéos reçues:', result?.videos);
+      console.log('📹 Type de result.videos:', typeof result?.videos);
+      console.log('📹 Est un array?', Array.isArray(result?.videos));
+      
+      // Vérifier différentes structures possibles de la réponse API
+      let videosArray = [];
+      if (Array.isArray(result?.videos)) {
+        videosArray = result.videos;
+      } else if (result?.videos?.videos && Array.isArray(result.videos.videos)) {
+        videosArray = result.videos.videos;
+      } else if (result?.videos && typeof result.videos === 'object') {
+        // Essayer d'extraire les vidéos d'un objet
+        videosArray = [];
+      }
+      
+      console.log('📹 Tableau de vidéos extrait:', videosArray);
+      console.log('📹 Nombre de vidéos:', videosArray.length);
+      
+      if (videosArray && videosArray.length > 0) {
+        console.log(`✅ ${videosArray.length} vidéos trouvées`);
         // Convertir le format backend au format attendu par les composants
-        const formattedVideos = result.videos.map(v => ({
+        const formattedVideos = videosArray.map(v => {
+          console.log('🎬 Formatage vidéo:', v);
+          return {
           id: v.id,
           videoId: v.youtubeId,
           title: v.title,
@@ -80,7 +108,8 @@ export const YouTubePage = () => {
           viewCount: v.viewCount,
           preacher: v.preacher,
           theme: v.theme
-        }));
+          };
+        });
         
         // Trier les vidéos selon un ordre intelligent (date, ID, popularité)
         const sortedVideos = sortVideosByRelevance(formattedVideos);
@@ -96,6 +125,7 @@ export const YouTubePage = () => {
         }
         
         setVideos(finalVideos);
+        console.log(`📺 ${finalVideos.length} vidéos formatées et prêtes à afficher`);
         
         // Mettre à jour la pagination
         if (preacherName) {
@@ -128,18 +158,25 @@ export const YouTubePage = () => {
           setCarouselVideos([]);
         }
       } else {
+        console.log('⚠️ Aucune vidéo dans le résultat');
         setVideos([]);
         setFiltered([]);
         setTotalPages(1);
         setTotalVideos(0);
         if (page === 1 && !search) {
-          setError('Aucune vidéo disponible pour le moment.');
+          setError(t('common.noVideosFound') || 'Aucune vidéo disponible pour le moment.');
         }
       }
     } catch (e) {
-      console.error('Erreur lors du chargement des vidéos:', e);
+      console.error('❌ Erreur lors du chargement des vidéos:', e);
+      console.error('❌ Détails de l\'erreur:', {
+        message: e.message,
+        response: e.response?.data,
+        status: e.response?.status,
+        url: e.config?.url
+      });
       const errorMessage = e.response?.data?.error || e.response?.data?.message || e.message || 'Erreur lors du chargement des vidéos.';
-      setError(`Erreur: ${errorMessage}. Vérifiez que le backend est démarré et que la base de données contient des vidéos.`);
+      setError(`${t('common.error')}: ${errorMessage}. ${t('common.checkBackend')}`);
       setVideos([]);
       setFiltered([]);
     } finally {
@@ -150,11 +187,12 @@ export const YouTubePage = () => {
 
   // Chargement initial
   useEffect(() => {
+    console.log('🚀 YouTubePage - Chargement initial des vidéos');
     setInitialLoading(true);
     loadVideos(1, '');
   }, [loadVideos]);
 
-  // Recherche en temps réel
+  // Recherche en temps réel avec délai très réduit pour réactivité maximale
   useEffect(() => {
     if (initialLoading) return;
 
@@ -166,7 +204,7 @@ export const YouTubePage = () => {
         setCurrentPage(1);
         loadVideos(1, searchQuery, selectedPreacher);
       }
-    }, 300);
+    }, 100); // Délai très réduit à 100ms pour réagir immédiatement dès la première lettre
 
     return () => clearTimeout(timer);
   }, [searchQuery, initialLoading, loadVideos, selectedPreacher]);
@@ -220,7 +258,7 @@ export const YouTubePage = () => {
               {t('nav.youtube') || 'Prédications'}
             </h1>
             <p className="text-center text-lg md:text-xl text-[#7a6a5b] mt-2 mb-8">
-              Découvrez toutes nos dernières prédications et enseignements
+              {t('youtube.subtitle')}
             </p>
           </div>
 
@@ -241,7 +279,12 @@ export const YouTubePage = () => {
         )}
 
         {initialLoading ? (
-          <LoaderSkeleton />
+          <div>
+            <LoaderSkeleton />
+            <div className="text-center mt-4 text-sm text-gray-500">
+              {t('common.loading')}... (Vérifiez la console pour les détails)
+            </div>
+          </div>
         ) : error ? (
           <section className="mt-8 pb-24 md:pb-32">
             <div className="max-w-7xl mx-auto px-4 text-center py-12">
@@ -252,7 +295,7 @@ export const YouTubePage = () => {
                 <p className="text-[#5A4632] text-lg font-semibold mb-2">{t('common.error')}</p>
                 <p className="text-[#7a6a5b] text-base mb-4">{error}</p>
                 <p className="text-[#7a6a5b] text-sm">
-                  Assurez-vous que le backend est démarré et que les vidéos ont été synchronisées.
+                  {t('common.checkBackend')}
                 </p>
               </div>
             </div>
@@ -270,25 +313,37 @@ export const YouTubePage = () => {
                 <div className="max-w-7xl mx-auto px-4 mb-6">
                   <h2 className="text-2xl font-serif text-[#5A4632]">
                     {selectedPreacher && (
-                      <span>{t('nav.preachers')}: {selectedPreacher} ({totalVideos} {totalVideos > 1 ? 'vidéos' : 'vidéo'})</span>
+                      <span>{t('nav.preachers')}: {selectedPreacher} ({totalVideos} {totalVideos > 1 ? t('common.videos') : t('common.video')})</span>
                     )}
                     {searchQuery && selectedPreacher && ' - '}
                     {searchQuery && (
                       <span>{t('common.search')} "{searchQuery}"</span>
                     )}
                     {!selectedPreacher && !searchQuery && (
-                      <span>{totalVideos} {totalVideos > 1 ? 'vidéos' : 'vidéo'}</span>
+                      <span>{totalVideos} {totalVideos > 1 ? t('common.videos') : t('common.video')}</span>
                     )}
                   </h2>
                 </div>
               )}
-              <VideoGrid 
-                videos={filtered} 
-                loading={loading}
-                totalPages={totalPages}
-                currentPage={currentPage}
-                onPageChange={handlePageChange}
-              />
+              {filtered && filtered.length > 0 ? (
+                <VideoGrid 
+                  videos={filtered} 
+                  loading={loading}
+                  totalPages={totalPages}
+                  currentPage={currentPage}
+                  onPageChange={handlePageChange}
+                />
+              ) : (
+                <div className="max-w-7xl mx-auto px-4 text-center py-12">
+                  <p className="text-[#7a6a5b] text-lg">{t('common.noVideosFound')}</p>
+                  <p className="text-[#7a6a5b] text-sm mt-2">
+                    {t('common.checkBackend')}
+                  </p>
+                  <div className="mt-4 text-xs text-gray-400">
+                    Debug: filtered={filtered?.length || 0}, videos={videos?.length || 0}, loading={loading ? 'true' : 'false'}, initialLoading={initialLoading ? 'true' : 'false'}
+                  </div>
+                </div>
+              )}
             </section>
           </>
         )}

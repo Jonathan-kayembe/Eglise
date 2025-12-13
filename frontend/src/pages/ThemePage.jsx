@@ -44,7 +44,7 @@ export const ThemePage = () => {
   if (!theme) {
     return (
       <div className="text-center py-20">
-        <p className="text-xl text-gray-600">Thème non trouvé</p>
+        <p className="text-xl text-gray-600">{t('common.themeNotFound')}</p>
       </div>
     );
   }

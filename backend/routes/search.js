@@ -14,14 +14,25 @@ const router = express.Router();
 router.get(
   '/',
   [
-    query('q').isString().trim().notEmpty().withMessage('Le terme de recherche est requis'),
+    query('q').optional().isString().trim(),
     query('limit').optional().isInt({ min: 1, max: 100 }).toInt(),
     query('page').optional().isInt({ min: 1 }).toInt()
   ],
   validateRequest,
   async (req, res, next) => {
     try {
-      const searchTerm = req.query.q;
+      const searchTerm = (req.query.q || '').trim();
+      
+      // Si aucun terme de recherche n'est fourni, retourner des résultats vides
+      if (!searchTerm || searchTerm === '') {
+        return res.json({
+          videos: { videos: [], pagination: { page: 1, totalPages: 1, total: 0 } },
+          preachers: [],
+          themes: [],
+          query: ''
+        });
+      }
+      
       const limit = req.query.limit || 20;
       const page = req.query.page || 1;
 

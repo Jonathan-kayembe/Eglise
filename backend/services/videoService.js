@@ -30,28 +30,49 @@ export const getVideos = async (options = {}) => {
     params.push(themeId);
   }
 
-  // Recherche textuelle (titre, description, prédicateur, thème, date)
+  // Recherche textuelle (titre, description, prédicateur, thème, date, tags)
   if (q) {
     const searchTerm = `%${q}%`;
-    // Recherche dans titre, description, nom du prédicateur, nom du thème, et date formatée
+    // Recherche dans titre, description, nom du prédicateur, nom du thème, date formatée, et tags
+    // Les JOINs sont toujours présents dans la requête principale, donc p.name et t.name sont disponibles
     conditions.push(`(
-      MATCH(v.title, v.description) AGAINST(? IN NATURAL LANGUAGE MODE) 
-      OR v.title LIKE ? 
-      OR v.description LIKE ?
-      OR p.name LIKE ?
-      OR t.name LIKE ?
+      LOWER(v.title) LIKE LOWER(?)
+      OR LOWER(v.description) LIKE LOWER(?)
+      OR LOWER(p.name) LIKE LOWER(?)
+      OR LOWER(t.name) LIKE LOWER(?)
       OR DATE_FORMAT(v.published_at, '%d/%m/%Y') LIKE ?
       OR DATE_FORMAT(v.published_at, '%Y-%m-%d') LIKE ?
       OR DATE_FORMAT(v.published_at, '%d-%m-%Y') LIKE ?
       OR DATE_FORMAT(v.published_at, '%d %B %Y') LIKE ?
       OR DATE_FORMAT(v.published_at, '%B %Y') LIKE ?
+      OR DATE_FORMAT(v.published_at, '%Y') LIKE ?
+      OR DATE_FORMAT(v.published_at, '%m/%Y') LIKE ?
+      OR DATE_FORMAT(v.published_at, '%m-%Y') LIKE ?
+      OR DATE_FORMAT(v.published_at, '%B') LIKE LOWER(?)
+      OR (v.tags IS NOT NULL AND LOWER(v.tags) LIKE LOWER(?))
     )`);
-    params.push(q, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+    params.push(
+      searchTerm, // v.title
+      searchTerm, // v.description
+      searchTerm, // p.name
+      searchTerm, // t.name
+      searchTerm, // date format 1: dd/mm/yyyy
+      searchTerm, // date format 2: yyyy-mm-dd
+      searchTerm, // date format 3: dd-mm-yyyy
+      searchTerm, // date format 4: dd Month yyyy
+      searchTerm, // date format 5: Month yyyy
+      searchTerm, // année seule
+      searchTerm, // mois/année 1: mm/yyyy
+      searchTerm, // mois/année 2: mm-yyyy
+      searchTerm, // mois en texte
+      searchTerm // tags
+    );
   }
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
   const orderBy = sort === 'asc' ? 'ASC' : 'DESC';
 
+  // Toujours inclure les JOINs pour que p.name et t.name soient disponibles même sans recherche
   const query = `
     SELECT 
       v.*,
@@ -75,10 +96,12 @@ export const getVideos = async (options = {}) => {
 
   const [videos] = await db.execute(query, params);
 
-  // Compter le total
+  // Compter le total (avec les mêmes JOINs que la requête principale)
   const countQuery = `
     SELECT COUNT(*) as total
     FROM videos v
+    LEFT JOIN preachers p ON v.preacher_id = p.id
+    LEFT JOIN themes t ON v.theme_id = t.id
     ${whereClause}
   `;
   const [countResult] = await db.execute(countQuery, params.slice(0, -2));
