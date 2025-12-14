@@ -138,7 +138,7 @@ export default function HomePage() {
                   10h00 - 13h00
                 </p>
                 <p className="text-[#5A4632]">
-                  Culte principal de la semaine avec prédication, louange et communion fraternelle.
+                  Culte de la semaine avec prédication, louange et communion fraternelle.
                 </p>
               </div>
 
