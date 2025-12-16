@@ -2,6 +2,35 @@ import getConnection from '../config/database.js';
 import { normalizeName, calculateSimilarity } from '../utils/searchUtils.js';
 
 /**
+ * Normalise les mois français vers anglais pour la recherche
+ */
+const normalizeMonth = (text) => {
+  const monthMap = {
+    'janvier': 'january',
+    'fevrier': 'february',
+    'février': 'february',
+    'mars': 'march',
+    'avril': 'april',
+    'mai': 'may',
+    'juin': 'june',
+    'juillet': 'july',
+    'aout': 'august',
+    'août': 'august',
+    'septembre': 'september',
+    'octobre': 'october',
+    'novembre': 'november',
+    'decembre': 'december',
+    'décembre': 'december'
+  };
+  
+  let normalized = text.toLowerCase();
+  for (const [fr, en] of Object.entries(monthMap)) {
+    normalized = normalized.replace(new RegExp(`\\b${fr}\\b`, 'gi'), en);
+  }
+  return normalized;
+};
+
+/**
  * Récupère les vidéos avec pagination et filtres
  */
 export const getVideos = async (options = {}) => {
@@ -34,14 +63,46 @@ export const getVideos = async (options = {}) => {
   // Recherche textuelle (titre, description, prédicateur, thème, date, tags)
   // Améliorée pour être tolérante aux accents et fautes d'orthographe
   if (q) {
+    // Normaliser la recherche pour gérer "et" dans les dates (ex: "15 - janvier et 2024")
+    let normalizedQuery = q.toLowerCase().trim();
+    // Remplacer " et " par " " pour la recherche de date
+    normalizedQuery = normalizedQuery.replace(/\s+et\s+/g, ' ');
+    
+    // Normaliser les mois français vers anglais
+    const normalizedQueryWithEnglishMonths = normalizeMonth(normalizedQuery);
+    
+    // Normaliser les mois à 1 chiffre vers 2 chiffres pour la recherche de date
+    // Ex: "15 - 1 2024" devient "15 - 01 2024"
+    const normalizedQueryWithTwoDigitMonths = normalizedQuery.replace(
+      /(\d{1,2})\s*-\s*(\d{1})\s+(\d{4})/g,
+      (match, day, month, year) => {
+        const paddedMonth = month.padStart(2, '0');
+        return `${day} - ${paddedMonth} ${year}`;
+      }
+    );
+    
     const searchTerm = `%${q}%`;
     // Normaliser le terme de recherche (enlever les accents) pour recherche plus flexible
-    const normalizedSearchTerm = q
-      .toLowerCase()
+    const normalizedSearchTerm = normalizedQuery
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^\w\s]/g, '');
+      .replace(/[^\w\s\-]/g, '');
     const normalizedSearchTermLike = `%${normalizedSearchTerm}%`;
+    
+    // Pour les dates avec mois en anglais (MySQL DATE_FORMAT retourne en anglais)
+    const normalizedSearchTermForDate = normalizedQueryWithEnglishMonths
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\w\s\-]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    
+    // Pour les dates avec mois en chiffres (normaliser à 2 chiffres)
+    const normalizedSearchTermForNumericDate = normalizedQueryWithTwoDigitMonths
+      .normalize('NFD')
+      .replace(/[^\w\s\-]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
     
     // Recherche dans titre, description, nom du prédicateur, nom du thème, date formatée, et tags
     // Recherche avec ET sans accents pour tolérer les fautes (ex: "francois" trouve "François")
@@ -67,6 +128,26 @@ export const getVideos = async (options = {}) => {
       OR DATE_FORMAT(v.published_at, '%Y-%m-%d') LIKE ?
       OR DATE_FORMAT(v.published_at, '%d-%m-%Y') LIKE ?
       OR DATE_FORMAT(v.published_at, '%d %B %Y') LIKE ?
+      OR CONCAT(DATE_FORMAT(v.published_at, '%d'), ' - ', DATE_FORMAT(v.published_at, '%M'), ' ', DATE_FORMAT(v.published_at, '%Y')) LIKE LOWER(?)
+      OR CONCAT(DATE_FORMAT(v.published_at, '%d'), ' - ', DATE_FORMAT(v.published_at, '%M'), ' et ', DATE_FORMAT(v.published_at, '%Y')) LIKE LOWER(?)
+      OR CONCAT(DATE_FORMAT(v.published_at, '%d'), ' - ', DATE_FORMAT(v.published_at, '%m'), ' ', DATE_FORMAT(v.published_at, '%Y')) LIKE ?
+      OR CONCAT(DATE_FORMAT(v.published_at, '%d'), ' - ', DATE_FORMAT(v.published_at, '%m'), ' et ', DATE_FORMAT(v.published_at, '%Y')) LIKE ?
+      OR CONCAT(DATE_FORMAT(v.published_at, '%d'), ' - ', CAST(DATE_FORMAT(v.published_at, '%m') AS UNSIGNED), ' ', DATE_FORMAT(v.published_at, '%Y')) LIKE ?
+      OR CONCAT(DATE_FORMAT(v.published_at, '%d'), ' - ', CAST(DATE_FORMAT(v.published_at, '%m') AS UNSIGNED), ' et ', DATE_FORMAT(v.published_at, '%Y')) LIKE ?
+      OR CONCAT(DATE_FORMAT(v.published_at, '%d'), ' - ', 
+        CASE DATE_FORMAT(v.published_at, '%m')
+          WHEN '01' THEN 'janvier' WHEN '02' THEN 'février' WHEN '03' THEN 'mars'
+          WHEN '04' THEN 'avril' WHEN '05' THEN 'mai' WHEN '06' THEN 'juin'
+          WHEN '07' THEN 'juillet' WHEN '08' THEN 'août' WHEN '09' THEN 'septembre'
+          WHEN '10' THEN 'octobre' WHEN '11' THEN 'novembre' WHEN '12' THEN 'décembre'
+        END, ' ', DATE_FORMAT(v.published_at, '%Y')) LIKE LOWER(?)
+      OR CONCAT(DATE_FORMAT(v.published_at, '%d'), ' - ', 
+        CASE DATE_FORMAT(v.published_at, '%m')
+          WHEN '01' THEN 'janvier' WHEN '02' THEN 'février' WHEN '03' THEN 'mars'
+          WHEN '04' THEN 'avril' WHEN '05' THEN 'mai' WHEN '06' THEN 'juin'
+          WHEN '07' THEN 'juillet' WHEN '08' THEN 'août' WHEN '09' THEN 'septembre'
+          WHEN '10' THEN 'octobre' WHEN '11' THEN 'novembre' WHEN '12' THEN 'décembre'
+        END, ' et ', DATE_FORMAT(v.published_at, '%Y')) LIKE LOWER(?)
       OR DATE_FORMAT(v.published_at, '%B %Y') LIKE ?
       OR DATE_FORMAT(v.published_at, '%Y') LIKE ?
       OR DATE_FORMAT(v.published_at, '%m/%Y') LIKE ?
@@ -87,7 +168,15 @@ export const getVideos = async (options = {}) => {
       searchTerm, // date format 2: yyyy-mm-dd
       searchTerm, // date format 3: dd-mm-yyyy
       searchTerm, // date format 4: dd Month yyyy
-      searchTerm, // date format 5: Month yyyy
+      `%${normalizedSearchTermForDate}%`, // date format 5: dd - Month yyyy (anglais, ex: "15 - January 2024")
+      `%${normalizedSearchTermForDate}%`, // date format 6: dd - Month et yyyy (anglais, ex: "15 - January et 2024")
+      `%${normalizedSearchTermForNumericDate}%`, // date format 7: dd - mm yyyy (2 chiffres, ex: "15 - 01 2024")
+      `%${normalizedSearchTermForNumericDate}%`, // date format 8: dd - mm et yyyy (2 chiffres, ex: "15 - 01 et 2024")
+      `%${normalizedQueryWithTwoDigitMonths}%`, // date format 9: dd - m yyyy (1 chiffre normalisé, ex: "15 - 1 2024" → "15 - 01 2024")
+      `%${normalizedQueryWithTwoDigitMonths}%`, // date format 10: dd - m et yyyy (1 chiffre normalisé, ex: "15 - 1 et 2024" → "15 - 01 et 2024")
+      `%${normalizedQuery}%`, // date format 9: dd - mois yyyy (français, ex: "15 - janvier 2024")
+      `%${normalizedQuery}%`, // date format 10: dd - mois et yyyy (français, ex: "15 - janvier et 2024")
+      searchTerm, // date format 11: Month yyyy
       searchTerm, // année seule
       searchTerm, // mois/année 1: mm/yyyy
       searchTerm, // mois/année 2: mm-yyyy

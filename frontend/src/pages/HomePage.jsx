@@ -30,29 +30,41 @@ export default function HomePage() {
         sort: 'desc'
       });
       
+      console.log('HomePage - Résultat API:', result);
+      
       if (result && result.videos && result.videos.length > 0) {
         const formattedVideos = result.videos.map(v => ({
           id: v.id,
-          videoId: v.youtubeId,
-          title: v.title,
-          description: v.description,
+          videoId: v.youtubeId || v.videoId, // Support les deux formats
+          youtubeId: v.youtubeId || v.videoId, // Garder aussi youtubeId pour compatibilité
+          title: v.title || 'Sans titre',
+          description: v.description || '',
           channelTitle: v.preacher?.name || 'Ottawa Christian Tabernacle',
           thumbnails: {
-            medium: { url: v.thumbnail },
-            high: { url: v.thumbnail }
+            medium: { url: v.thumbnail || '' },
+            high: { url: v.thumbnail || '' }
           },
           publishedAt: v.publishedAt,
           tags: v.tags || [],
-          thumbnail: v.thumbnail,
-          duration: v.duration,
-          viewCount: v.viewCount,
-          preacher: v.preacher,
-          theme: v.theme
-        }));
+          thumbnail: v.thumbnail || '',
+          duration: v.duration || 0,
+          viewCount: v.viewCount || 0,
+          preacher: v.preacher || null,
+          theme: v.theme || null
+        })).filter(v => v.id || v.videoId || v.youtubeId); // Filtrer les vidéos vraiment invalides
         
-        const sortedVideos = sortVideosByRelevance(formattedVideos);
-        setVideos(sortedVideos);
-        setCarouselVideos(sortedVideos.slice(0, 5));
+        console.log('HomePage - Vidéos formatées:', formattedVideos);
+        
+        if (formattedVideos.length > 0) {
+          const sortedVideos = sortVideosByRelevance(formattedVideos);
+          console.log('HomePage - Vidéos triées:', sortedVideos);
+          setVideos(sortedVideos);
+          setCarouselVideos(sortedVideos.slice(0, 5));
+        } else {
+          setVideos([]);
+          setCarouselVideos([]);
+          setError(t('home.noVideosAvailable'));
+        }
       } else {
         setVideos([]);
         setCarouselVideos([]);
@@ -60,7 +72,15 @@ export default function HomePage() {
       }
     } catch (e) {
       console.error('Erreur lors du chargement des vidéos:', e);
-      const errorMessage = e.response?.data?.error || e.response?.data?.message || e.message || t('home.errorLoadingVideos');
+      let errorMessage = e.response?.data?.error || e.response?.data?.message || e.message || t('home.errorLoadingVideos');
+      
+      // Messages d'erreur plus clairs selon le type d'erreur
+      if (e.code === 'ECONNABORTED' || e.message?.includes('timeout')) {
+        errorMessage = 'La requête a pris trop de temps. Le serveur est peut-être surchargé.';
+      } else if (e.message?.includes('Network Error') || e.message?.includes('connecter au serveur')) {
+        errorMessage = 'Impossible de se connecter au serveur. Vérifiez que le backend est démarré.';
+      }
+      
       setError(`${t('common.error')}: ${errorMessage}. ${t('home.errorCheckBackend')}`);
       setVideos([]);
       setCarouselVideos([]);
@@ -72,7 +92,8 @@ export default function HomePage() {
   // Chargement initial
   useEffect(() => {
     loadVideos();
-  }, [loadVideos]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F7F0E5] flex flex-col">
@@ -209,7 +230,7 @@ export default function HomePage() {
               </div>
             ) : (
               <>
-                {carouselVideos.length > 0 && (
+                {carouselVideos && carouselVideos.length > 0 && (
                   <div className="mb-8">
                     <VideoCarousel videos={carouselVideos} />
                   </div>
@@ -219,12 +240,15 @@ export default function HomePage() {
                   <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                       {videos.map((v, index) => {
-                        if (!v || (!v.videoId && !v.id)) {
+                        // Vérification plus permissive - accepter si on a au moins un ID ou un titre
+                        if (!v || (!v.id && !v.videoId && !v.youtubeId && !v.title)) {
+                          console.warn('Vidéo invalide ignorée:', v);
                           return null;
                         }
+                        console.log('Affichage vidéo:', { id: v.id, videoId: v.videoId, youtubeId: v.youtubeId, title: v.title });
                         return (
                           <VideoCard 
-                            key={v.id || v.videoId || `video-${index}`} 
+                            key={v.id || v.videoId || v.youtubeId || `video-${index}`} 
                             video={v} 
                             index={index}
                           />
@@ -242,11 +266,12 @@ export default function HomePage() {
                       </Link>
                     </div>
                   </>
-                ) : (
+                ) : !initialLoading && !error ? (
                   <div className="text-center py-12">
                     <p className="text-[#7a6a5b] text-lg">{t('home.noVideosFound') || t('common.noVideosFound')}</p>
+                    <p className="text-[#7a6a5b] text-sm mt-2">Videos state: {JSON.stringify({ count: videos?.length, hasVideos: !!videos })}</p>
                   </div>
-                )}
+                ) : null}
               </>
             )}
           </div>

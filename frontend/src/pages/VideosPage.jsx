@@ -28,22 +28,25 @@ export function VideosPage() {
   const loadVideos = useCallback(async (page = 1, search = '') => {
     try {
       setLoading(true);
-      setError(null);
+      setError(null); // Toujours réinitialiser l'erreur au début
       
       let result;
-      if (search && search.trim() !== '') {
+      const searchTrimmed = search ? search.trim() : '';
+      if (searchTrimmed !== '') {
         try {
-          const searchResult = await searchAPI(search.trim(), {
+          const searchResult = await searchAPI(searchTrimmed, {
             limit: 12,
             page: page
           });
+          // L'API de recherche retourne { videos: { videos: [...], pagination: {...} }, ... }
           if (searchResult && searchResult.videos) {
-            result = searchResult.videos;
+            result = searchResult.videos; // result = { videos: [...], pagination: {...} }
           } else {
             result = { videos: [], pagination: { page, totalPages: 1, total: 0 } };
           }
         } catch (searchError) {
           console.error('Erreur lors de la recherche:', searchError);
+          setError(searchError.response?.data?.error || searchError.message || t('home.errorLoadingVideos'));
           result = { videos: [], pagination: { page, totalPages: 1, total: 0 } };
         }
       } else {
@@ -57,26 +60,28 @@ export function VideosPage() {
       if (result && result.videos && result.videos.length > 0) {
         const formattedVideos = result.videos.map(v => ({
           id: v.id,
-          videoId: v.youtubeId,
-          title: v.title,
-          description: v.description,
+          videoId: v.youtubeId || v.videoId, // Support les deux formats
+          youtubeId: v.youtubeId || v.videoId, // Garder aussi youtubeId pour compatibilité
+          title: v.title || 'Sans titre',
+          description: v.description || '',
           channelTitle: v.preacher?.name || 'Ottawa Christian Tabernacle',
           thumbnails: {
-            medium: { url: v.thumbnail },
-            high: { url: v.thumbnail }
+            medium: { url: v.thumbnail || '' },
+            high: { url: v.thumbnail || '' }
           },
           publishedAt: v.publishedAt,
           tags: v.tags || [],
-          thumbnail: v.thumbnail,
-          duration: v.duration,
-          viewCount: v.viewCount,
-          preacher: v.preacher,
-          theme: v.theme
-        }));
+          thumbnail: v.thumbnail || '',
+          duration: v.duration || 0,
+          viewCount: v.viewCount || 0,
+          preacher: v.preacher || null,
+          theme: v.theme || null
+        })).filter(v => v.id || v.videoId || v.youtubeId); // Filtrer les vidéos vraiment invalides
         
-        const sortedVideos = sortVideosByRelevance(formattedVideos);
-        setVideos(sortedVideos);
-        setFiltered(sortedVideos);
+        if (formattedVideos.length > 0) {
+          const sortedVideos = sortVideosByRelevance(formattedVideos);
+          setVideos(sortedVideos);
+          setFiltered(sortedVideos);
         
         if (result.pagination) {
           setTotalPages(result.pagination.totalPages || 1);
@@ -93,21 +98,34 @@ export function VideosPage() {
         } else {
           setCarouselVideos([]);
         }
-      } else {
+        } else {
         setVideos([]);
         setFiltered([]);
         setTotalPages(1);
         setTotalVideos(0);
+        setCarouselVideos([]);
         if (page === 1 && !search) {
           setError(t('home.noVideosAvailable'));
+        } else {
+          setError(null);
         }
+      }
       }
     } catch (e) {
       console.error('Erreur lors du chargement des vidéos:', e);
-      const errorMessage = e.response?.data?.error || e.response?.data?.message || e.message || t('home.errorLoadingVideos');
+      let errorMessage = e.response?.data?.error || e.response?.data?.message || e.message || t('home.errorLoadingVideos');
+      
+      // Messages d'erreur plus clairs selon le type d'erreur
+      if (e.code === 'ECONNABORTED' || e.message?.includes('timeout')) {
+        errorMessage = 'La requête a pris trop de temps. Le serveur est peut-être surchargé.';
+      } else if (e.message?.includes('Network Error') || e.message?.includes('connecter au serveur')) {
+        errorMessage = 'Impossible de se connecter au serveur. Vérifiez que le backend est démarré.';
+      }
+      
       setError(`${t('common.error')}: ${errorMessage}. ${t('home.errorCheckBackend')}`);
       setVideos([]);
       setFiltered([]);
+      setCarouselVideos([]);
     } finally {
       setLoading(false);
       setInitialLoading(false);
@@ -117,24 +135,29 @@ export function VideosPage() {
   // Chargement initial
   useEffect(() => {
     loadVideos(1, '');
-  }, [loadVideos]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Recherche en temps réel
   useEffect(() => {
     if (initialLoading) return;
     const timer = setTimeout(() => {
       setCurrentPage(1);
-      loadVideos(1, searchQuery);
+      setError(null); // Réinitialiser l'erreur quand on change la recherche
+      // Si la recherche est vide, recharger toutes les vidéos
+      loadVideos(1, searchQuery.trim());
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery, initialLoading, loadVideos]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, initialLoading]);
 
   // Gestion du changement de page
   const handlePageChange = useCallback((page) => {
     setCurrentPage(page);
     loadVideos(page, searchQuery);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [loadVideos, searchQuery]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
 
   const onSearch = useCallback((query) => {
     setSearchQuery(query.trim());

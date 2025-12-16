@@ -25,9 +25,12 @@ export const VideoCard = ({ video, index = 0 }) => {
     if (video.id) {
       // Navigation vers la page de détail si l'ID existe
       navigate(`/video/${video.id}`);
-    } else if (video.videoId) {
-      // Sinon, ouvrir directement YouTube
-      window.open(`https://www.youtube.com/watch?v=${video.videoId}`, '_blank');
+    } else {
+      // Utiliser videoId ou youtubeId pour ouvrir YouTube
+      const videoId = video.videoId || video.youtubeId;
+      if (videoId) {
+        window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+      }
     }
   };
 

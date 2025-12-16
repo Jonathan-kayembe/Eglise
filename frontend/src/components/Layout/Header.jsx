@@ -55,8 +55,9 @@ export const Header = () => {
               {t('nav.home') || 'Accueil'}
             </Link>
             <Link
-              to="/#videos"
+              to="/videos"
               className="nav-link-ink"
+              aria-current={location.pathname === '/videos' ? 'page' : undefined}
             >
               {t('nav.videos') || 'Vidéos'}
             </Link>
