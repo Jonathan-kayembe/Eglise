@@ -4,7 +4,10 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { getVideoById, getSuggestedVideos } from '../api/videos';
 import { VideoCard } from '../components/VideoCard/VideoCard';
+import { SEO } from '../components/SEO';
 import { cleanVideoDescription } from '../utils/descriptionUtils';
+import { getVideoDisplayDate, formatDate } from '../utils/dateUtils';
+import { trackVideoView } from '../utils/analytics';
 
 export const VideoPage = () => {
   const { id } = useParams();
@@ -12,7 +15,7 @@ export const VideoPage = () => {
   const [video, setVideo] = useState(null);
   const [suggestedVideos, setSuggestedVideos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     loadVideo();
@@ -27,6 +30,15 @@ export const VideoPage = () => {
       ]);
       setVideo(videoData);
       setSuggestedVideos(suggestedData);
+      
+      // Track analytics
+      if (videoData) {
+        trackVideoView(
+          videoData.youtubeId,
+          videoData.title,
+          videoData.preacher?.name
+        );
+      }
     } catch (error) {
       console.error('Erreur lors du chargement de la vidéo:', error);
     } finally {
@@ -34,13 +46,6 @@ export const VideoPage = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
 
   if (loading) {
     return (
@@ -59,8 +64,21 @@ export const VideoPage = () => {
     );
   }
 
+  const videoUrl = video ? `${window.location.origin}/video/${video.id}` : '';
+  const videoImage = video?.thumbnail || '/logo.png';
+
   return (
     <div className="container mx-auto px-4 py-12">
+      {video && (
+        <SEO
+          title={video.title}
+          description={cleanVideoDescription(video.description) || `Prédication par ${video.preacher?.name || 'Ottawa Christian Tabernacle'}`}
+          image={videoImage}
+          url={videoUrl}
+          type="video"
+          videoId={video.youtubeId}
+        />
+      )}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -72,6 +90,7 @@ export const VideoPage = () => {
           <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-[#5A4632] hover:text-[#4a3822] transition-colors font-medium"
+            aria-label="Retour à la page précédente"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -89,6 +108,7 @@ export const VideoPage = () => {
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               className="w-full h-full"
+              aria-label={`Lecteur vidéo YouTube : ${video.title}`}
             />
           </div>
         </div>
@@ -101,11 +121,14 @@ export const VideoPage = () => {
             </h1>
 
             <div className="flex flex-wrap items-center gap-4 mb-6 text-gray-600">
-              {video.publishedAt && (
-                <span>
-                  {t('common.published')} {formatDate(video.publishedAt)}
-                </span>
-              )}
+              {(() => {
+                const displayDate = getVideoDisplayDate(video);
+                return displayDate ? (
+                  <span>
+                    {t('common.published')} {formatDate(displayDate, i18n.language)}
+                  </span>
+                ) : null;
+              })()}
               {video.preacher && (
                 <span>
                   {t('common.by')}{' '}

@@ -8,11 +8,12 @@ import videoRoutes from './routes/videos.js';
 import preacherRoutes from './routes/preachers.js';
 import themeRoutes from './routes/themes.js';
 import searchRoutes from './routes/search.js';
+import playlistRoutes from './routes/playlists.js';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 // Middleware de sécurité
 app.use(helmet());
@@ -46,6 +47,7 @@ app.use('/api/videos', videoRoutes);
 app.use('/api/preachers', preacherRoutes);
 app.use('/api/themes', themeRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/playlists', playlistRoutes);
 
 // Route de santé
 app.get('/health', (req, res) => {

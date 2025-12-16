@@ -1,4 +1,5 @@
 import getConnection from '../config/database.js';
+import { normalizeName } from '../utils/searchUtils.js';
 
 /**
  * Récupère tous les prédicateurs
@@ -39,6 +40,54 @@ export const getPreacherBySlug = async (slug) => {
   }
 
   return formatPreacher(preachers[0]);
+};
+
+/**
+ * Récupère un prédicateur par ID
+ */
+export const getPreacherById = async (id) => {
+  const db = getConnection();
+  const [preachers] = await db.execute(
+    `SELECT 
+      p.*,
+      COUNT(v.id) as video_count
+    FROM preachers p
+    LEFT JOIN videos v ON p.id = v.preacher_id
+    WHERE p.id = ?
+    GROUP BY p.id`,
+    [id]
+  );
+
+  if (preachers.length === 0) {
+    return null;
+  }
+
+  return formatPreacher(preachers[0]);
+};
+
+/**
+ * Recherche un prédicateur par nom (avec fuzzy search)
+ */
+export const searchPreacherByName = async (name) => {
+  const db = getConnection();
+  const allPreachers = await getAllPreachers();
+  const normalizedSearch = normalizeName(name);
+  
+  // Recherche exacte d'abord
+  let found = allPreachers.find(p => {
+    const normalized = normalizeName(p.name);
+    return normalized === normalizedSearch;
+  });
+  
+  if (found) return found;
+  
+  // Recherche partielle
+  found = allPreachers.find(p => {
+    const normalized = normalizeName(p.name);
+    return normalized.includes(normalizedSearch) || normalizedSearch.includes(normalized);
+  });
+  
+  return found || null;
 };
 
 /**
@@ -117,6 +166,48 @@ export const createPreacher = async (preacherData) => {
 };
 
 /**
+ * Met à jour un prédicateur
+ */
+export const updatePreacher = async (id, preacherData) => {
+  const db = getConnection();
+  const { name, slug, bio, photo, backgroundImages } = preacherData;
+
+  await db.execute(
+    `UPDATE preachers 
+     SET name = ?, slug = ?, bio = ?, photo = ?, background_images = ?
+     WHERE id = ?`,
+    [
+      name,
+      slug,
+      bio || null,
+      photo || null,
+      JSON.stringify(backgroundImages || []),
+      id
+    ]
+  );
+
+  return await getPreacherById(id);
+};
+
+/**
+ * Fusionne deux prédicateurs (garde le premier, fusionne les vidéos du second)
+ */
+export const mergePreachers = async (keeperId, toMergeId) => {
+  const db = getConnection();
+  
+  // Mettre à jour toutes les vidéos
+  await db.execute(
+    'UPDATE videos SET preacher_id = ? WHERE preacher_id = ?',
+    [keeperId, toMergeId]
+  );
+  
+  // Supprimer le prédicateur à fusionner
+  await db.execute('DELETE FROM preachers WHERE id = ?', [toMergeId]);
+  
+  return await getPreacherById(keeperId);
+};
+
+/**
  * Formate un prédicateur pour la réponse API
  */
 const formatPreacher = (row) => {
@@ -134,4 +225,3 @@ const formatPreacher = (row) => {
     updatedAt: row.updated_at
   };
 };
-

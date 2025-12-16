@@ -51,7 +51,7 @@ npm install
 
 Backend (`.env`):
 ```env
-PORT=3001
+PORT=3000
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=votre_mot_de_passe
@@ -64,7 +64,7 @@ NODE_ENV=development
 
 Frontend (`.env`):
 ```env
-VITE_API_URL=http://localhost:3001
+VITE_API_URL=http://localhost:3000
 ```
 
 3. **Initialiser la base de données**

@@ -1,4 +1,5 @@
 import getConnection from '../config/database.js';
+import { normalizeName, calculateSimilarity } from '../utils/searchUtils.js';
 
 /**
  * Récupère les vidéos avec pagination et filtres
@@ -31,15 +32,37 @@ export const getVideos = async (options = {}) => {
   }
 
   // Recherche textuelle (titre, description, prédicateur, thème, date, tags)
+  // Améliorée pour être tolérante aux accents et fautes d'orthographe
   if (q) {
     const searchTerm = `%${q}%`;
+    // Normaliser le terme de recherche (enlever les accents) pour recherche plus flexible
+    const normalizedSearchTerm = q
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\w\s]/g, '');
+    const normalizedSearchTermLike = `%${normalizedSearchTerm}%`;
+    
     // Recherche dans titre, description, nom du prédicateur, nom du thème, date formatée, et tags
+    // Recherche avec ET sans accents pour tolérer les fautes (ex: "francois" trouve "François")
     // Les JOINs sont toujours présents dans la requête principale, donc p.name et t.name sont disponibles
     conditions.push(`(
       LOWER(v.title) LIKE LOWER(?)
+      OR LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+        v.title, 'à', 'a'), 'é', 'e'), 'è', 'e'), 'ê', 'e'), 'ë', 'e'), 
+        'î', 'i'), 'ï', 'i'), 'ô', 'o'), 'ù', 'u'), 'û', 'u')) LIKE ?
       OR LOWER(v.description) LIKE LOWER(?)
+      OR LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+        v.description, 'à', 'a'), 'é', 'e'), 'è', 'e'), 'ê', 'e'), 'ë', 'e'), 
+        'î', 'i'), 'ï', 'i'), 'ô', 'o'), 'ù', 'u'), 'û', 'u')) LIKE ?
       OR LOWER(p.name) LIKE LOWER(?)
+      OR LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+        p.name, 'à', 'a'), 'é', 'e'), 'è', 'e'), 'ê', 'e'), 'ë', 'e'), 
+        'î', 'i'), 'ï', 'i'), 'ô', 'o'), 'ù', 'u'), 'û', 'u')) LIKE ?
       OR LOWER(t.name) LIKE LOWER(?)
+      OR LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+        t.name, 'à', 'a'), 'é', 'e'), 'è', 'e'), 'ê', 'e'), 'ë', 'e'), 
+        'î', 'i'), 'ï', 'i'), 'ô', 'o'), 'ù', 'u'), 'û', 'u')) LIKE ?
       OR DATE_FORMAT(v.published_at, '%d/%m/%Y') LIKE ?
       OR DATE_FORMAT(v.published_at, '%Y-%m-%d') LIKE ?
       OR DATE_FORMAT(v.published_at, '%d-%m-%Y') LIKE ?
@@ -52,10 +75,14 @@ export const getVideos = async (options = {}) => {
       OR (v.tags IS NOT NULL AND LOWER(v.tags) LIKE LOWER(?))
     )`);
     params.push(
-      searchTerm, // v.title
-      searchTerm, // v.description
-      searchTerm, // p.name
-      searchTerm, // t.name
+      searchTerm, // v.title (avec accents)
+      normalizedSearchTermLike, // v.title (sans accents)
+      searchTerm, // v.description (avec accents)
+      normalizedSearchTermLike, // v.description (sans accents)
+      searchTerm, // p.name (avec accents)
+      normalizedSearchTermLike, // p.name (sans accents)
+      searchTerm, // t.name (avec accents)
+      normalizedSearchTermLike, // t.name (sans accents)
       searchTerm, // date format 1: dd/mm/yyyy
       searchTerm, // date format 2: yyyy-mm-dd
       searchTerm, // date format 3: dd-mm-yyyy

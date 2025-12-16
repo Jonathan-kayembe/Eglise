@@ -3,6 +3,7 @@ import { query, param } from 'express-validator';
 import { getVideos, getVideoById, getSuggestedVideos, getVideoByYoutubeId, upsertVideo } from '../services/videoService.js';
 import { validateRequest } from '../middleware/validation.js';
 import { fetchAllChannelVideos } from '../services/youtubeService.js';
+import { extractDateFromTitle } from '../utils/dateUtils.js';
 
 const router = express.Router();
 
@@ -116,12 +117,16 @@ router.post(
 
           const tags = extractTags(video.description || '');
 
+          // Extraire la date du titre si elle existe, sinon utiliser la date YouTube
+          const titleDate = extractDateFromTitle(video.title);
+          const publishedAt = titleDate || new Date(video.publishedAt);
+
           await upsertVideo({
             youtubeId: video.videoId,
             title: video.title,
             description: video.description,
             thumbnail: video.thumbnail,
-            publishedAt: new Date(video.publishedAt),
+            publishedAt: publishedAt,
             tags: tags,
             duration: video.duration,
             viewCount: video.viewCount,

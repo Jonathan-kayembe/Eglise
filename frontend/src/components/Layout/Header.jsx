@@ -26,6 +26,8 @@ export const Header = () => {
       className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled ? 'header-glass-scroll' : 'bg-white shadow-md'
       }`}
+      role="banner"
+      aria-label="En-tête principal"
     >
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
@@ -43,18 +45,19 @@ export const Header = () => {
             </motion.div>
           </Link>
 
-          <nav className="hidden md:flex items-center space-x-6 relative">
+          <nav className="hidden md:flex items-center space-x-6 relative" role="navigation" aria-label="Navigation principale">
             <Link
               to="/"
               className="nav-link-ink"
+              aria-current={window.location.pathname === '/' ? 'page' : undefined}
             >
               {t('nav.home') || 'Accueil'}
             </Link>
             <Link
-              to="/youtube"
+              to="/#videos"
               className="nav-link-ink"
             >
-              Prédication
+              {t('nav.videos') || 'Vidéos'}
             </Link>
           </nav>
 

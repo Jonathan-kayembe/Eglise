@@ -1,11 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getVideos } from '../api/videos';
+import { search as searchAPI } from '../api/search';
 import VideoCarousel from '../components/VideoCarousel';
 import { VideoCard } from '../components/VideoCard';
+import { SearchBar } from '../components/SearchBar/SearchBar';
+import VideoGrid from '../components/VideoGrid';
 import LoaderSkeleton from '../components/LoaderSkeleton';
 import { Header } from '../components/Layout/Header';
 import { Footer } from '../components/Layout/Footer';
+import { SEO } from '../components/SEO';
 import { sortVideosByRelevance } from '../utils/videoSortUtils';
 
 export default function HomePage() {
@@ -13,24 +17,45 @@ export default function HomePage() {
   const [videos, setVideos] = useState([]);
   const [carouselVideos, setCarouselVideos] = useState([]);
   const [filtered, setFiltered] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalVideos, setTotalVideos] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState(null);
 
-  // Charger seulement quelques vidéos récentes pour la page d'accueil
-  const loadVideos = useCallback(async () => {
+  // Charger les vidéos avec pagination
+  const loadVideos = useCallback(async (page = 1, search = '') => {
     try {
-      setInitialLoading(true);
+      setLoading(true);
       setError(null);
       
-      // Charger seulement 8 vidéos les plus récentes
-      const result = await getVideos({ 
-        limit: 8, 
-        page: 1, 
-        sort: 'desc'
-      });
+      let result;
+      if (search && search.trim() !== '') {
+        try {
+          const searchResult = await searchAPI(search.trim(), {
+            limit: 12,
+            page: page
+          });
+          if (searchResult && searchResult.videos) {
+            result = searchResult.videos;
+          } else {
+            result = { videos: [], pagination: { page, totalPages: 1, total: 0 } };
+          }
+        } catch (searchError) {
+          console.error('Erreur lors de la recherche:', searchError);
+          result = { videos: [], pagination: { page, totalPages: 1, total: 0 } };
+        }
+      } else {
+        result = await getVideos({ 
+          limit: 12, 
+          page: page, 
+          sort: 'desc'
+        });
+      }
       
       if (result && result.videos && result.videos.length > 0) {
-        // Convertir le format backend au format attendu par les composants
         const formattedVideos = result.videos.map(v => ({
           id: v.id,
           videoId: v.youtubeId,
@@ -50,37 +75,78 @@ export default function HomePage() {
           theme: v.theme
         }));
         
-        // Trier les vidéos selon un ordre intelligent (date, ID, popularité)
         const sortedVideos = sortVideosByRelevance(formattedVideos);
-        
         setVideos(sortedVideos);
         setFiltered(sortedVideos);
         
-        // Carrousel avec les 5 premières (les plus récentes)
-        setCarouselVideos(sortedVideos.slice(0, 5));
+        if (result.pagination) {
+          setTotalPages(result.pagination.totalPages || 1);
+          setTotalVideos(result.pagination.total || sortedVideos.length);
+          setCurrentPage(result.pagination.page || page);
+        } else {
+          setTotalPages(1);
+          setTotalVideos(sortedVideos.length);
+          setCurrentPage(page);
+        }
+        
+        if (page === 1 && !search) {
+          setCarouselVideos(sortedVideos.slice(0, 5));
+        } else {
+          setCarouselVideos([]);
+        }
       } else {
         setVideos([]);
         setFiltered([]);
-        setError('Aucune vidéo disponible pour le moment.');
+        setTotalPages(1);
+        setTotalVideos(0);
+        if (page === 1 && !search) {
+          setError(t('home.noVideosAvailable'));
+        }
       }
     } catch (e) {
       console.error('Erreur lors du chargement des vidéos:', e);
-      const errorMessage = e.response?.data?.error || e.response?.data?.message || e.message || 'Erreur lors du chargement des vidéos.';
-      setError(`Erreur: ${errorMessage}. Vérifiez que le backend est démarré et que la base de données contient des vidéos.`);
+      const errorMessage = e.response?.data?.error || e.response?.data?.message || e.message || t('home.errorLoadingVideos');
+      setError(`${t('common.error')}: ${errorMessage}. ${t('home.errorCheckBackend')}`);
       setVideos([]);
       setFiltered([]);
     } finally {
+      setLoading(false);
       setInitialLoading(false);
     }
   }, []);
 
   // Chargement initial
   useEffect(() => {
-    loadVideos();
+    loadVideos(1, '');
   }, [loadVideos]);
+
+  // Recherche en temps réel
+  useEffect(() => {
+    if (initialLoading) return;
+    const timer = setTimeout(() => {
+      setCurrentPage(1);
+      loadVideos(1, searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, initialLoading, loadVideos]);
+
+  // Gestion du changement de page
+  const handlePageChange = useCallback((page) => {
+    setCurrentPage(page);
+    loadVideos(page, searchQuery);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [loadVideos, searchQuery]);
+
+  const onSearch = useCallback((query) => {
+    setSearchQuery(query.trim());
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F7F0E5] flex flex-col">
+      <SEO
+        title="Accueil"
+        description="Site officiel du Tabernacle Chrétien d'Ottawa. Regardez nos prédications, découvrez nos services et rejoignez notre communauté."
+      />
       <Header />
 
       <main className="flex-grow">
@@ -100,18 +166,17 @@ export default function HomePage() {
             {/* Verset */}
             <div className="mb-8">
               <p className="text-2xl md:text-3xl font-serif italic text-[#5A4632] mb-4">
-                Jésus Christ est le même hier, aujourd'hui et éternellement
+                {t('home.verse')}
               </p>
               <p className="text-lg md:text-xl text-[#7a6a5b] font-semibold">
-                — Hébreux 13:8 —
+                {t('home.verseReference')}
               </p>
             </div>
 
             {/* Message de bienvenue */}
             <div className="bg-white/70 rounded-xl p-6 md:p-8 shadow-md mb-8">
               <p className="text-lg md:text-xl text-[#5A4632] leading-relaxed">
-                Nous vous saluons cordialement dans le précieux Nom de notre Seigneur et Sauveur Jésus-Christ. 
-                Nous nous estimons heureux de vous accueillir sur le site du Tabernacle Chrétien d'Ottawa.
+                {t('home.welcomeText')}
               </p>
             </div>
           </div>
@@ -121,75 +186,79 @@ export default function HomePage() {
         <section className="py-8 px-4 bg-white/30">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#5A4632] text-center mb-8">
-              Services
+              {t('home.services')}
             </h2>
             <p className="text-center text-lg text-[#7a6a5b] mb-8 max-w-3xl mx-auto">
-              Notre église propose une variété de services pour répondre à différents besoins spirituels et rythmes. 
-              Rejoignez-nous pour un culte et une vie communautaire enrichissante.
+              {t('home.servicesDescription')}
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Service du dimanche */}
               <div className="bg-white/70 rounded-xl p-6 shadow-md">
                 <h3 className="text-2xl font-serif font-bold text-[#5A4632] mb-3">
-                  Service du dimanche
+                  {t('home.sundayService')}
                 </h3>
                 <p className="text-xl font-semibold text-[#7a6a5b] mb-3">
-                  10h00 - 13h00
+                  {t('home.sundayServiceTime')}
                 </p>
                 <p className="text-[#5A4632]">
-                  Culte de la semaine avec prédication, louange et communion fraternelle.
+                  {t('home.sundayServiceDescription')}
                 </p>
               </div>
 
               {/* Service du Vendredi */}
               <div className="bg-white/70 rounded-xl p-6 shadow-md">
                 <h3 className="text-2xl font-serif font-bold text-[#5A4632] mb-3">
-                  Service du Vendredi
+                  {t('home.fridayService')}
                 </h3>
                 <p className="text-xl font-semibold text-[#7a6a5b] mb-3">
-                  19h00 - 21h00
+                  {t('home.fridayServiceTime')}
                 </p>
                 <p className="text-[#5A4632]">
-                  Service de prière et d'enseignement en fin de semaine pour approfondir votre foi.
+                  {t('home.fridayServiceDescription')}
                 </p>
               </div>
 
               {/* Service en ligne */}
               <div className="bg-white/70 rounded-xl p-6 shadow-md">
                 <h3 className="text-2xl font-serif font-bold text-[#5A4632] mb-3">
-                  Service en ligne
+                  {t('home.onlineService')}
                 </h3>
                 <p className="text-xl font-semibold text-[#7a6a5b] mb-3">
-                  Mardi et jeudi à 19h00
+                  {t('home.onlineServiceTime')}
                 </p>
                 <p className="text-[#5A4632]">
-                  Rejoignez-nous en ligne pour un service en milieu de semaine qui rassemble virtuellement notre communauté chrétienne.
+                  {t('home.onlineServiceDescription')}
                 </p>
               </div>
 
               {/* Ecole du dimanche */}
               <div className="bg-white/70 rounded-xl p-6 shadow-md">
                 <h3 className="text-2xl font-serif font-bold text-[#5A4632] mb-3">
-                  École du dimanche
+                  {t('home.sundaySchool')}
                 </h3>
                 <p className="text-xl font-semibold text-[#7a6a5b] mb-3">
-                  9h30 - 10h00
+                  {t('home.sundaySchoolTime')}
                 </p>
                 <p className="text-[#5A4632]">
-                  Enseignement biblique adapté pour tous les âges avant le service principal.
+                  {t('home.sundaySchoolDescription')}
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Section Vidéos récentes */}
-        <section className="py-8 px-4">
+        {/* Section Vidéos avec recherche */}
+        <section id="videos" className="py-8 px-4">
           <div className="max-w-7xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#5A4632] text-center mb-8">
-              Dernières Prédications
+              {t('home.sermons') || 'Prédications'}
             </h2>
+            
+            {/* Barre de recherche */}
+            <div className="max-w-2xl mx-auto mb-8">
+              <SearchBar onSearch={onSearch} />
+            </div>
             
             {initialLoading ? (
               <LoaderSkeleton />
@@ -205,28 +274,31 @@ export default function HomePage() {
               </div>
             ) : (
               <>
-                {carouselVideos.length > 0 && (
+                {!searchQuery && carouselVideos.length > 0 && (
                   <div className="mb-8">
                     <VideoCarousel videos={carouselVideos} />
                   </div>
                 )}
                 
-                {filtered.length > 0 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filtered.slice(0, 6).map(v => (
-                      <VideoCard key={v.videoId} video={v} />
-                    ))}
+                {searchQuery && (
+                  <div className="max-w-7xl mx-auto px-4 mb-6">
+                    <h2 className="text-2xl font-serif text-[#5A4632]">
+                      {t('home.searchResults', { query: searchQuery, count: totalVideos })}
+                    </h2>
                   </div>
                 )}
                 
-                {filtered.length > 6 && (
-                  <div className="text-center mt-8">
-                    <a 
-                      href="/youtube" 
-                      className="inline-block px-6 py-3 bg-[#5A4632] text-white rounded-lg hover:bg-[#4a3822] transition-colors font-medium text-lg"
-                    >
-                      Voir toutes les prédications →
-                    </a>
+                {filtered && filtered.length > 0 ? (
+                  <VideoGrid 
+                    videos={filtered} 
+                    loading={loading}
+                    totalPages={totalPages}
+                    currentPage={currentPage}
+                    onPageChange={handlePageChange}
+                  />
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-[#7a6a5b] text-lg">{t('home.noVideosFound') || t('common.noVideosFound')}</p>
                   </div>
                 )}
               </>

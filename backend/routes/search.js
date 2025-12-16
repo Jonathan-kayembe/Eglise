@@ -4,6 +4,7 @@ import { getVideos } from '../services/videoService.js';
 import { getAllPreachers } from '../services/preacherService.js';
 import { getAllThemes } from '../services/themeService.js';
 import { validateRequest } from '../middleware/validation.js';
+import { fuzzySearchPreachers, fuzzySearchThemes } from '../utils/searchUtils.js';
 
 const router = express.Router();
 
@@ -44,19 +45,27 @@ router.get(
         sort: 'desc'
       });
 
-      // Recherche dans les prédicateurs
+      // Recherche dans les prédicateurs avec fuzzy search (seuil abaissé à 0.5 pour plus de tolérance)
       const allPreachers = await getAllPreachers();
-      const preacherResults = allPreachers.filter(p =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (p.bio && p.bio.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
+      const preacherResults = fuzzySearchPreachers(allPreachers, searchTerm, 0.5)
+        .filter(p => {
+          // Recherche aussi dans la bio (avec normalisation des accents)
+          const normalizedBio = p.bio ? p.bio.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
+          const normalizedSearch = searchTerm.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          const bioMatch = normalizedBio.includes(normalizedSearch);
+          return true; // Les résultats fuzzy sont déjà filtrés
+        });
 
-      // Recherche dans les thèmes
+      // Recherche dans les thèmes avec fuzzy search (seuil abaissé à 0.5 pour plus de tolérance)
       const allThemes = await getAllThemes();
-      const themeResults = allThemes.filter(t =>
-        t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (t.description && t.description.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
+      const themeResults = fuzzySearchThemes(allThemes, searchTerm, 0.5)
+        .filter(t => {
+          // Recherche aussi dans la description (avec normalisation des accents)
+          const normalizedDesc = t.description ? t.description.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
+          const normalizedSearch = searchTerm.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          const descMatch = normalizedDesc.includes(normalizedSearch);
+          return true; // Les résultats fuzzy sont déjà filtrés
+        });
 
       res.json({
         videos: videoResults,

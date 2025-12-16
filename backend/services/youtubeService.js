@@ -49,39 +49,107 @@ export const getChannelUploadsPlaylistId = async (channelIdentifier) => {
 export const getAllPlaylistVideos = async (playlistId) => {
   const allVideos = [];
   let nextPageToken = null;
+  let pageCount = 0;
+  let totalRetrieved = 0;
 
   try {
     do {
+      pageCount++;
+      console.log(`📄 Récupération page ${pageCount}... (${totalRetrieved} vidéos déjà récupérées)`);
+      
       const response = await axios.get(`${YOUTUBE_API_BASE}/playlistItems`, {
         params: {
           part: 'snippet,contentDetails',
           playlistId: playlistId,
-          maxResults: 50,
-          pageToken: nextPageToken,
+          maxResults: 50, // Maximum autorisé par l'API
+          pageToken: nextPageToken || undefined, // Ne pas envoyer null
           key: YOUTUBE_API_KEY
         }
       });
 
-      const videos = response.data.items.map(item => ({
-        videoId: item.contentDetails.videoId,
-        title: item.snippet.title,
-        description: item.snippet.description,
-        thumbnail: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.medium?.url,
-        publishedAt: item.snippet.publishedAt
-      }));
+      // Vérifier si la réponse est valide
+      if (!response.data || !response.data.items) {
+        console.warn(`⚠️  Réponse invalide pour la page ${pageCount}`);
+        break;
+      }
 
-      allVideos.push(...videos);
+      const items = response.data.items || [];
+      console.log(`   ✅ ${items.length} vidéos trouvées sur cette page`);
+
+      // Filtrer les vidéos supprimées ou privées
+      const validVideos = items
+        .filter(item => {
+          // Vérifier si la vidéo n'est pas supprimée
+          if (item.snippet.title === 'Deleted video' || item.snippet.title === 'Private video') {
+            return false;
+          }
+          // Vérifier si contentDetails existe
+          if (!item.contentDetails || !item.contentDetails.videoId) {
+            return false;
+          }
+          return true;
+        })
+        .map(item => ({
+          videoId: item.contentDetails.videoId,
+          title: item.snippet.title,
+          description: item.snippet.description,
+          thumbnail: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.medium?.url,
+          publishedAt: item.snippet.publishedAt
+        }));
+
+      allVideos.push(...validVideos);
+      totalRetrieved = allVideos.length;
       nextPageToken = response.data.nextPageToken;
 
-      // Délai pour respecter les limites de l'API
+      // Afficher le progrès
       if (nextPageToken) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        console.log(`   📊 Total accumulé: ${totalRetrieved} vidéos. Page suivante disponible.`);
+        // Délai pour respecter les limites de l'API (augmenté pour éviter les erreurs de quota)
+        await new Promise(resolve => setTimeout(resolve, 200));
+      } else {
+        console.log(`   ✅ Dernière page atteinte. Total final: ${totalRetrieved} vidéos.`);
       }
+
+      // Protection contre les boucles infinies (sécurité)
+      if (pageCount > 1000) {
+        console.warn('⚠️  Limite de sécurité atteinte (1000 pages). Arrêt de la récupération.');
+        break;
+      }
+
     } while (nextPageToken);
 
+    console.log(`\n📊 Récupération terminée: ${totalRetrieved} vidéos sur ${pageCount} pages\n`);
     return allVideos;
   } catch (error) {
-    console.error('Erreur lors de la récupération des vidéos:', error.response?.data || error.message);
+    console.error('\n❌ Erreur lors de la récupération des vidéos:');
+    console.error('   Message:', error.message);
+    if (error.response) {
+      console.error('   Status:', error.response.status);
+      console.error('   Data:', JSON.stringify(error.response.data, null, 2));
+      
+      // Gestion spécifique des erreurs de quota
+      if (error.response.status === 403) {
+        const errorData = error.response.data?.error;
+        if (errorData?.errors?.[0]?.reason === 'quotaExceeded') {
+          console.error('\n⚠️  QUOTA API YOUTUBE DÉPASSÉ!');
+          console.error('   Vous avez atteint la limite quotidienne de requêtes.');
+          console.error('   Solutions:');
+          console.error('   1. Attendre 24h pour le reset du quota');
+          console.error('   2. Demander une augmentation de quota sur Google Cloud Console');
+          console.error('   3. Utiliser plusieurs clés API et alterner entre elles');
+        } else if (errorData?.errors?.[0]?.reason === 'forbidden') {
+          console.error('\n⚠️  ACCÈS REFUSÉ!');
+          console.error('   Vérifiez que votre clé API est valide et a les bonnes permissions.');
+        }
+      }
+    }
+    
+    // Retourner les vidéos récupérées jusqu'à présent plutôt que de tout perdre
+    if (allVideos.length > 0) {
+      console.log(`\n⚠️  Retour de ${allVideos.length} vidéos récupérées avant l'erreur.`);
+      return allVideos;
+    }
+    
     throw error;
   }
 };
@@ -141,14 +209,28 @@ export const fetchAllChannelVideos = async () => {
     console.log('📊 Récupération des détails des vidéos...');
     const videoIds = videos.map(v => v.videoId);
     const detailsMap = {};
+    const totalBatches = Math.ceil(videoIds.length / 50);
 
     for (let i = 0; i < videoIds.length; i += 50) {
       const batch = videoIds.slice(i, i + 50);
-      const details = await getVideoDetails(batch);
-      details.forEach(d => {
-        detailsMap[d.videoId] = d;
-      });
-      await new Promise(resolve => setTimeout(resolve, 100));
+      const batchNumber = Math.floor(i / 50) + 1;
+      console.log(`   📦 Lot ${batchNumber}/${totalBatches} (${batch.length} vidéos)...`);
+      
+      try {
+        const details = await getVideoDetails(batch);
+        details.forEach(d => {
+          detailsMap[d.videoId] = d;
+        });
+        console.log(`   ✅ ${details.length} détails récupérés`);
+      } catch (error) {
+        console.error(`   ⚠️  Erreur pour le lot ${batchNumber}:`, error.message);
+        // Continuer avec les autres lots même en cas d'erreur
+      }
+      
+      // Délai augmenté pour éviter les erreurs de quota
+      if (i + 50 < videoIds.length) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
     }
 
     // Fusionner les données
