@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
@@ -8,6 +8,7 @@ import '../YouTube/styles/effects.css';
 
 export const Header = () => {
   const { t } = useTranslation();
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export const Header = () => {
             <Link
               to="/"
               className="nav-link-ink"
-              aria-current={window.location.pathname === '/' ? 'page' : undefined}
+              aria-current={location.pathname === '/' ? 'page' : undefined}
             >
               {t('nav.home') || 'Accueil'}
             </Link>

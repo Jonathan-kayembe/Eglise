@@ -1,59 +1,34 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { getVideos } from '../api/videos';
-import { search as searchAPI } from '../api/search';
 import VideoCarousel from '../components/VideoCarousel';
 import { VideoCard } from '../components/VideoCard';
-import { SearchBar } from '../components/SearchBar/SearchBar';
-import VideoGrid from '../components/VideoGrid';
 import LoaderSkeleton from '../components/LoaderSkeleton';
 import { Header } from '../components/Layout/Header';
 import { Footer } from '../components/Layout/Footer';
 import { SEO } from '../components/SEO';
+import { LiveBanner } from '../components/LiveBanner';
 import { sortVideosByRelevance } from '../utils/videoSortUtils';
 
 export default function HomePage() {
   const { t } = useTranslation();
   const [videos, setVideos] = useState([]);
   const [carouselVideos, setCarouselVideos] = useState([]);
-  const [filtered, setFiltered] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalVideos, setTotalVideos] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState(null);
 
-  // Charger les vidéos avec pagination
-  const loadVideos = useCallback(async (page = 1, search = '') => {
+  // Charger seulement quelques vidéos pour la page d'accueil
+  const loadVideos = useCallback(async () => {
     try {
-      setLoading(true);
+      setInitialLoading(true);
       setError(null);
       
-      let result;
-      if (search && search.trim() !== '') {
-        try {
-          const searchResult = await searchAPI(search.trim(), {
-            limit: 12,
-            page: page
-          });
-          if (searchResult && searchResult.videos) {
-            result = searchResult.videos;
-          } else {
-            result = { videos: [], pagination: { page, totalPages: 1, total: 0 } };
-          }
-        } catch (searchError) {
-          console.error('Erreur lors de la recherche:', searchError);
-          result = { videos: [], pagination: { page, totalPages: 1, total: 0 } };
-        }
-      } else {
-        result = await getVideos({ 
-          limit: 12, 
-          page: page, 
-          sort: 'desc'
-        });
-      }
+      const result = await getVideos({ 
+        limit: 6, 
+        page: 1, 
+        sort: 'desc'
+      });
       
       if (result && result.videos && result.videos.length > 0) {
         const formattedVideos = result.videos.map(v => ({
@@ -77,69 +52,27 @@ export default function HomePage() {
         
         const sortedVideos = sortVideosByRelevance(formattedVideos);
         setVideos(sortedVideos);
-        setFiltered(sortedVideos);
-        
-        if (result.pagination) {
-          setTotalPages(result.pagination.totalPages || 1);
-          setTotalVideos(result.pagination.total || sortedVideos.length);
-          setCurrentPage(result.pagination.page || page);
-        } else {
-          setTotalPages(1);
-          setTotalVideos(sortedVideos.length);
-          setCurrentPage(page);
-        }
-        
-        if (page === 1 && !search) {
-          setCarouselVideos(sortedVideos.slice(0, 5));
-        } else {
-          setCarouselVideos([]);
-        }
+        setCarouselVideos(sortedVideos.slice(0, 5));
       } else {
         setVideos([]);
-        setFiltered([]);
-        setTotalPages(1);
-        setTotalVideos(0);
-        if (page === 1 && !search) {
-          setError(t('home.noVideosAvailable'));
-        }
+        setCarouselVideos([]);
+        setError(t('home.noVideosAvailable'));
       }
     } catch (e) {
       console.error('Erreur lors du chargement des vidéos:', e);
       const errorMessage = e.response?.data?.error || e.response?.data?.message || e.message || t('home.errorLoadingVideos');
       setError(`${t('common.error')}: ${errorMessage}. ${t('home.errorCheckBackend')}`);
       setVideos([]);
-      setFiltered([]);
+      setCarouselVideos([]);
     } finally {
-      setLoading(false);
       setInitialLoading(false);
     }
-  }, []);
+  }, [t]);
 
   // Chargement initial
   useEffect(() => {
-    loadVideos(1, '');
+    loadVideos();
   }, [loadVideos]);
-
-  // Recherche en temps réel
-  useEffect(() => {
-    if (initialLoading) return;
-    const timer = setTimeout(() => {
-      setCurrentPage(1);
-      loadVideos(1, searchQuery);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchQuery, initialLoading, loadVideos]);
-
-  // Gestion du changement de page
-  const handlePageChange = useCallback((page) => {
-    setCurrentPage(page);
-    loadVideos(page, searchQuery);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [loadVideos, searchQuery]);
-
-  const onSearch = useCallback((query) => {
-    setSearchQuery(query.trim());
-  }, []);
 
   return (
     <div className="min-h-screen bg-[#F7F0E5] flex flex-col">
@@ -150,6 +83,13 @@ export default function HomePage() {
       <Header />
 
       <main className="flex-grow">
+        {/* Section Live YouTube - S'affiche uniquement si un live est en cours, tout en haut */}
+        <div className="w-full">
+          <div className="max-w-7xl mx-auto px-4 pt-8">
+            <LiveBanner />
+          </div>
+        </div>
+
         {/* Section de présentation de l'église */}
         <section className="py-8 px-4">
           <div className="max-w-4xl mx-auto text-center">
@@ -248,17 +188,12 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Section Vidéos avec recherche */}
+        {/* Section Vidéos - Aperçu */}
         <section id="videos" className="py-8 px-4">
           <div className="max-w-7xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#5A4632] text-center mb-8">
               {t('home.sermons') || 'Prédications'}
             </h2>
-            
-            {/* Barre de recherche */}
-            <div className="max-w-2xl mx-auto mb-8">
-              <SearchBar onSearch={onSearch} />
-            </div>
             
             {initialLoading ? (
               <LoaderSkeleton />
@@ -274,28 +209,39 @@ export default function HomePage() {
               </div>
             ) : (
               <>
-                {!searchQuery && carouselVideos.length > 0 && (
+                {carouselVideos.length > 0 && (
                   <div className="mb-8">
                     <VideoCarousel videos={carouselVideos} />
                   </div>
                 )}
                 
-                {searchQuery && (
-                  <div className="max-w-7xl mx-auto px-4 mb-6">
-                    <h2 className="text-2xl font-serif text-[#5A4632]">
-                      {t('home.searchResults', { query: searchQuery, count: totalVideos })}
-                    </h2>
-                  </div>
-                )}
-                
-                {filtered && filtered.length > 0 ? (
-                  <VideoGrid 
-                    videos={filtered} 
-                    loading={loading}
-                    totalPages={totalPages}
-                    currentPage={currentPage}
-                    onPageChange={handlePageChange}
-                  />
+                {videos && videos.length > 0 ? (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                      {videos.map((v, index) => {
+                        if (!v || (!v.videoId && !v.id)) {
+                          return null;
+                        }
+                        return (
+                          <VideoCard 
+                            key={v.id || v.videoId || `video-${index}`} 
+                            video={v} 
+                            index={index}
+                          />
+                        );
+                      })}
+                    </div>
+                    
+                    {/* Bouton pour voir toutes les vidéos */}
+                    <div className="text-center mt-8">
+                      <Link
+                        to="/videos"
+                        className="btn-primary inline-block"
+                      >
+                        {t('home.viewAllVideos') || 'Voir toutes les vidéos'}
+                      </Link>
+                    </div>
+                  </>
                 ) : (
                   <div className="text-center py-12">
                     <p className="text-[#7a6a5b] text-lg">{t('home.noVideosFound') || t('common.noVideosFound')}</p>

@@ -193,6 +193,77 @@ const parseDuration = (duration) => {
 };
 
 /**
+ * Récupère la vidéo en direct actuelle de la chaîne
+ * Retourne null si aucun live n'est en cours
+ */
+export const getLiveVideo = async () => {
+  try {
+    // D'abord, obtenir l'ID de la chaîne si c'est un handle
+    let channelId = YOUTUBE_CHANNEL_ID;
+    
+    // Si c'est un handle (commence par @), on doit d'abord récupérer l'ID de la chaîne
+    if (YOUTUBE_CHANNEL_ID.startsWith('@')) {
+      const params = {
+        part: 'id',
+        key: YOUTUBE_API_KEY,
+        forHandle: YOUTUBE_CHANNEL_ID
+      };
+      
+      const channelResponse = await axios.get(`${YOUTUBE_API_BASE}/channels`, { params });
+      
+      if (channelResponse.data.items && channelResponse.data.items.length > 0) {
+        channelId = channelResponse.data.items[0].id;
+      } else {
+        // Essayer avec forUsername si forHandle ne fonctionne pas
+        params.forUsername = YOUTUBE_CHANNEL_ID.replace('@', '');
+        delete params.forHandle;
+        
+        const fallbackResponse = await axios.get(`${YOUTUBE_API_BASE}/channels`, { params });
+        if (fallbackResponse.data.items && fallbackResponse.data.items.length > 0) {
+          channelId = fallbackResponse.data.items[0].id;
+        } else {
+          console.error('Chaîne YouTube non trouvée pour:', YOUTUBE_CHANNEL_ID);
+          return null;
+        }
+      }
+    }
+    
+    // Rechercher les vidéos en direct
+    const response = await axios.get(`${YOUTUBE_API_BASE}/search`, {
+      params: {
+        part: 'snippet',
+        channelId: channelId,
+        eventType: 'live',
+        type: 'video',
+        maxResults: 1,
+        key: YOUTUBE_API_KEY
+      }
+    });
+    
+    // Si aucune vidéo en direct n'est trouvée
+    if (!response.data.items || response.data.items.length === 0) {
+      return null;
+    }
+    
+    const liveItem = response.data.items[0];
+    
+    // Retourner les informations du live
+    return {
+      id: liveItem.id.videoId,
+      title: liveItem.snippet.title,
+      thumbnail: liveItem.snippet.thumbnails?.high?.url || liveItem.snippet.thumbnails?.medium?.url || liveItem.snippet.thumbnails?.default?.url,
+      description: liveItem.snippet.description,
+      channelTitle: liveItem.snippet.channelTitle,
+      publishedAt: liveItem.snippet.publishedAt
+    };
+  } catch (error) {
+    console.error('Erreur lors de la récupération du live:', error.response?.data || error.message);
+    // En cas d'erreur, retourner null plutôt que de faire planter l'application
+    return null;
+  }
+};
+
+/**
  * Récupère toutes les vidéos de la chaîne
  */
 export const fetchAllChannelVideos = async () => {

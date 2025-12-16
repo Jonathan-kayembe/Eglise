@@ -279,14 +279,19 @@ export const upsertVideo = async (videoData) => {
 };
 
 /**
- * Récupère les vidéos suggérées (même prédicateur ou thème)
+ * Récupère les vidéos suggérées (aléatoires parmi les plus récentes)
+ * Récupère un pool de vidéos récentes et en sélectionne aléatoirement
  */
 export const getSuggestedVideos = async (videoId, limit = 6) => {
   const video = await getVideoById(videoId);
   if (!video) return [];
 
   const db = getConnection();
-  const [videos] = await db.execute(
+  
+  // Récupérer un pool plus large de vidéos récentes (50-100) pour avoir plus de variété
+  const poolSize = Math.max(50, limit * 10);
+  
+  const [allVideos] = await db.execute(
     `SELECT 
       v.*,
       p.name as preacher_name,
@@ -297,14 +302,25 @@ export const getSuggestedVideos = async (videoId, limit = 6) => {
     FROM videos v
     LEFT JOIN preachers p ON v.preacher_id = p.id
     LEFT JOIN themes t ON v.theme_id = t.id
-    WHERE v.id != ? 
-      AND (v.preacher_id = ? OR v.theme_id = ?)
+    WHERE v.id != ?
     ORDER BY v.published_at DESC
     LIMIT ?`,
-    [videoId, video.preacher?.id || 0, video.theme?.id || 0, limit]
+    [videoId, poolSize]
   );
 
-  return videos.map(formatVideo);
+  if (allVideos.length === 0) return [];
+
+  // Mélanger aléatoirement les vidéos
+  const shuffled = [...allVideos];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  // Prendre les premières vidéos du mélange (limit)
+  const selectedVideos = shuffled.slice(0, limit);
+
+  return selectedVideos.map(formatVideo);
 };
 
 /**

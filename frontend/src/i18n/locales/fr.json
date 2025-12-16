@@ -67,7 +67,11 @@
     "sundaySchoolDescription": "Enseignement biblique adapté pour tous les âges avant le service principal.",
     "noVideosAvailable": "Aucune vidéo disponible pour le moment.",
     "errorLoadingVideos": "Erreur lors du chargement des vidéos.",
-    "errorCheckBackend": "Vérifiez que le backend est démarré et que la base de données contient des vidéos."
+    "errorCheckBackend": "Vérifiez que le backend est démarré et que la base de données contient des vidéos.",
+    "viewAllVideos": "Voir toutes les vidéos"
+  },
+  "videos": {
+    "allVideos": "Toutes les prédications"
   },
   "preacher": {
     "videos": "Vidéos",
@@ -81,6 +85,10 @@
     "suggested": "Suggestions",
     "related": "Vidéos similaires",
     "churchInfo": "Ottawa Christian Tabernacle\nÉglise des croyants du message biblique du temps de la fin.\n\nNotre programme :\nMardi et Jeudi à 19h00 : Rediffusion des prédications en ligne sur notre chaîne\nVendredi à 19h00 : Culte en présentiel\nDimanche à 10h00: Culte en présentiel\n\nNotre adresse : 323 Montréal Rd, Vanier, ON K1L 7C4\nDans le sous sol, en utilisant les portes sur le côté\n\nContacts:\nstudios.oct@gmail.com : Pour vos requêtes, salutations, suggestions ou autres\nottawachristiantabernacle@gmail.com : Pour vos dîmes, offrandes et dons volontaires"
+  },
+  "live": {
+    "title": "EN DIRECT",
+    "bannerLabel": "Vidéo en direct"
   },
   "youtube": {
     "title": "Prédications",

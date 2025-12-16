@@ -9,6 +9,7 @@ import preacherRoutes from './routes/preachers.js';
 import themeRoutes from './routes/themes.js';
 import searchRoutes from './routes/search.js';
 import playlistRoutes from './routes/playlists.js';
+import youtubeRoutes from './routes/youtube.js';
 
 dotenv.config();
 
@@ -48,6 +49,7 @@ app.use('/api/preachers', preacherRoutes);
 app.use('/api/themes', themeRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/playlists', playlistRoutes);
+app.use('/api/youtube', youtubeRoutes);
 
 // Route de santé
 app.get('/health', (req, res) => {
