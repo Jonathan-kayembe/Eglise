@@ -10,12 +10,31 @@ coverage/
 build/
 dist/
 
-# Environment variables
+# Environment variables - TOUJOURS IGNORER
 .env
+.env.*
+!.env.example
+!.env*.example
+*.env
+config.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.development
+.env.production
+.env.staging
+
+# Fichiers de configuration sensibles
+**/config.env
+**/config.local.*
+**/*.secret
+**/*.key
+**/*.pem
+**/*.p12
+**/*.pfx
+**/credentials.json
+**/secrets.json
 
 # Logs
 npm-debug.log*

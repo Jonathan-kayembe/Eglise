@@ -29,8 +29,8 @@ export default function VideoCarousel({ videos }) {
         }}
         className="video-carousel"
       >
-        {videos.map(v => (
-          <SwiperSlide key={v.videoId}>
+        {videos.map((v, index) => (
+          <SwiperSlide key={v.id || v.videoId || v.youtubeId || `carousel-video-${index}`}>
             <VideoCard video={v} />
           </SwiperSlide>
         ))}

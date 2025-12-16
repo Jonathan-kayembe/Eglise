@@ -1,9 +1,11 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { LazyImage } from '../LazyImage';
+import { getVideoDisplayDate, formatDate } from '../../utils/dateUtils';
 
 export const VideoCard = ({ video, index = 0 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   // Vérifier que la vidéo est valide
@@ -19,47 +21,48 @@ export const VideoCard = ({ video, index = 0 }) => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
   const handleClick = () => {
     if (video.id) {
       // Navigation vers la page de détail si l'ID existe
       navigate(`/video/${video.id}`);
-    } else if (video.videoId) {
-      // Sinon, ouvrir directement YouTube
-      window.open(`https://www.youtube.com/watch?v=${video.videoId}`, '_blank');
+    } else {
+      // Utiliser videoId ou youtubeId pour ouvrir YouTube
+      const videoId = video.videoId || video.youtubeId;
+      if (videoId) {
+        window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+      }
     }
   };
 
   return (
-    <motion.div
+    <motion.article
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
       whileHover={{ y: -8 }}
       className="card cursor-pointer"
       onClick={handleClick}
+      role="article"
+      aria-label={`Vidéo : ${video.title || 'Sans titre'}`}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
     >
       <div>
         <div className="relative aspect-video overflow-hidden bg-black-deep">
           {video.thumbnail ? (
-            <img
+            <LazyImage
               src={video.thumbnail}
               alt={video.title || 'Vidéo'}
               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-              loading="lazy"
-              onError={(e) => {
-                e.target.src = 'https://via.placeholder.com/640x360?text=Video';
-              }}
+              onError={() => {}}
             />
           ) : (
-            <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+            <div className="w-full h-full bg-gray-300 flex items-center justify-center" role="img" aria-label="Pas de miniature disponible">
               <span className="text-gray-500">Pas de miniature</span>
             </div>
           )}
@@ -83,9 +86,12 @@ export const VideoCard = ({ video, index = 0 }) => {
                 {video.preacher.name}
               </Link>
             )}
-            {video.publishedAt && (
-              <span>{formatDate(video.publishedAt)}</span>
-            )}
+            {(() => {
+              const displayDate = getVideoDisplayDate(video);
+              return displayDate ? (
+                <span>{formatDate(displayDate, i18n.language)}</span>
+              ) : null;
+            })()}
           </div>
           {video.theme && (
             <div className="mt-2">
@@ -104,7 +110,7 @@ export const VideoCard = ({ video, index = 0 }) => {
           )}
         </div>
       </div>
-    </motion.div>
+    </motion.article>
   );
 };
 

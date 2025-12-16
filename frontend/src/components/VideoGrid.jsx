@@ -115,10 +115,6 @@ export default function VideoGrid({ videos, loading, totalPages: externalTotalPa
     return pages;
   };
 
-  // Debug: vérifier les vidéos reçues
-  console.log('🎬 VideoGrid - Vidéos reçues:', videos);
-  console.log('🎬 VideoGrid - Nombre de vidéos:', videos?.length);
-  
   if (!videos || videos.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 text-center py-12">
@@ -138,13 +134,13 @@ export default function VideoGrid({ videos, loading, totalPages: externalTotalPa
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {currentVideos.map((v, index) => {
           // Vérifier que la vidéo a les propriétés nécessaires
-          if (!v || (!v.videoId && !v.id)) {
-            console.warn('⚠️ Vidéo invalide:', v);
+          if (!v || (!v.videoId && !v.id && !v.youtubeId)) {
+            console.warn('Vidéo invalide:', v);
             return null;
           }
           return (
             <VideoCard 
-              key={v.id || v.videoId || `video-${index}`} 
+              key={v.id || v.videoId || v.youtubeId || `video-${index}`} 
               video={v} 
               index={index}
             />

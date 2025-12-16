@@ -23,10 +23,13 @@
     "videos": "vidéos",
     "displayed": "affichée",
     "displayedPlural": "affichées",
-    "checkBackend": "Assurez-vous que le backend est démarré et que les vidéos ont été synchronisées."
+    "checkBackend": "Assurez-vous que le backend est démarré et que les vidéos ont été synchronisées.",
+    "result": "résultat",
+    "results": "résultats"
   },
   "nav": {
     "home": "Accueil",
+    "videos": "Vidéos",
     "youtube": "Prédications",
     "preachers": "Prédicateurs",
     "themes": "Thèmes",
@@ -41,7 +44,35 @@
     "welcome": "Bienvenue",
     "welcomeMessage": "Partageons la Parole de Dieu ensemble",
     "discoverSermons": "Découvrez nos prédications",
-    "watchNow": "Regarder maintenant"
+    "watchNow": "Regarder maintenant",
+    "sermons": "Prédications",
+    "searchResults_one": "Recherche \"{{query}}\" - {{count}} résultat",
+    "searchResults_other": "Recherche \"{{query}}\" - {{count}} résultats",
+    "noVideosFound": "Aucune vidéo trouvée",
+    "verse": "Jésus Christ est le même hier, aujourd'hui et éternellement",
+    "verseReference": "— Hébreux 13:8 —",
+    "welcomeText": "Nous vous saluons cordialement dans le précieux Nom de notre Seigneur et Sauveur Jésus-Christ. Nous nous estimons heureux de vous accueillir sur le site du Tabernacle Chrétien d'Ottawa.",
+    "services": "Services",
+    "servicesDescription": "Notre église propose une variété de services pour répondre à différents besoins spirituels et rythmes. Rejoignez-nous pour un culte et une vie communautaire enrichissante.",
+    "sundayService": "Service du dimanche",
+    "sundayServiceTime": "10h00 - 13h00",
+    "sundayServiceDescription": "Culte de la semaine avec prédication, louange et communion fraternelle.",
+    "fridayService": "Service du Vendredi",
+    "fridayServiceTime": "19h00 - 21h00",
+    "fridayServiceDescription": "Service de prière et d'enseignement en fin de semaine pour approfondir votre foi.",
+    "onlineService": "Service en ligne",
+    "onlineServiceTime": "Mardi et jeudi à 19h00",
+    "onlineServiceDescription": "Rejoignez-nous en ligne pour un service en milieu de semaine qui rassemble virtuellement notre communauté chrétienne.",
+    "sundaySchool": "École du dimanche",
+    "sundaySchoolTime": "9h30 - 10h00",
+    "sundaySchoolDescription": "Enseignement biblique adapté pour tous les âges avant le service principal.",
+    "noVideosAvailable": "Aucune vidéo disponible pour le moment.",
+    "errorLoadingVideos": "Erreur lors du chargement des vidéos.",
+    "errorCheckBackend": "Vérifiez que le backend est démarré et que la base de données contient des vidéos.",
+    "viewAllVideos": "Voir toutes les vidéos"
+  },
+  "videos": {
+    "allVideos": "Toutes les prédications"
   },
   "preacher": {
     "videos": "Vidéos",
@@ -55,6 +86,10 @@
     "suggested": "Suggestions",
     "related": "Vidéos similaires",
     "churchInfo": "Ottawa Christian Tabernacle\nÉglise des croyants du message biblique du temps de la fin.\n\nNotre programme :\nMardi et Jeudi à 19h00 : Rediffusion des prédications en ligne sur notre chaîne\nVendredi à 19h00 : Culte en présentiel\nDimanche à 10h00: Culte en présentiel\n\nNotre adresse : 323 Montréal Rd, Vanier, ON K1L 7C4\nDans le sous sol, en utilisant les portes sur le côté\n\nContacts:\nstudios.oct@gmail.com : Pour vos requêtes, salutations, suggestions ou autres\nottawachristiantabernacle@gmail.com : Pour vos dîmes, offrandes et dons volontaires"
+  },
+  "live": {
+    "title": "EN DIRECT",
+    "bannerLabel": "Vidéo en direct"
   },
   "youtube": {
     "title": "Prédications",

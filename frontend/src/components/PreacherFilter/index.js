@@ -1,1 +1,0 @@
-export { PreacherFilter } from './PreacherFilter';

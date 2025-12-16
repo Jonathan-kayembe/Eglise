@@ -51,7 +51,7 @@ npm install
 
 Backend (`.env`):
 ```env
-PORT=3001
+PORT=3000
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=votre_mot_de_passe
@@ -64,7 +64,7 @@ NODE_ENV=development
 
 Frontend (`.env`):
 ```env
-VITE_API_URL=http://localhost:3001
+VITE_API_URL=http://localhost:3000
 ```
 
 3. **Initialiser la base de données**
@@ -163,10 +163,14 @@ docker-compose up -d
 
 ## 🔐 Sécurité
 
-- Les clés API sont stockées côté serveur uniquement
-- Rate limiting sur les endpoints API
-- Validation des inputs
-- Variables d'environnement pour les credentials
+- ✅ Les clés API sont stockées côté serveur uniquement (jamais exposées au frontend)
+- ✅ Rate limiting sur les endpoints API
+- ✅ Validation des inputs
+- ✅ Variables d'environnement pour les credentials
+- ✅ Fichiers `.env` exclus de Git via `.gitignore`
+- ✅ Fichiers `.env.example` avec valeurs fictives uniquement
+
+📖 **Voir [SECURITE.md](SECURITE.md) pour le guide complet de sécurité et les bonnes pratiques**
 
 ## 📄 Licence
 

@@ -23,10 +23,13 @@
     "videos": "videos",
     "displayed": "displayed",
     "displayedPlural": "displayed",
-    "checkBackend": "Make sure the backend is started and videos have been synchronized."
+    "checkBackend": "Make sure the backend is started and videos have been synchronized.",
+    "result": "result",
+    "results": "results"
   },
   "nav": {
     "home": "Home",
+    "videos": "Videos",
     "youtube": "Sermons",
     "preachers": "Preachers",
     "themes": "Themes",
@@ -41,7 +44,35 @@
     "welcome": "Welcome",
     "welcomeMessage": "Let's share the Word of God together",
     "discoverSermons": "Discover our sermons",
-    "watchNow": "Watch now"
+    "watchNow": "Watch now",
+    "sermons": "Sermons",
+    "searchResults_one": "Search \"{{query}}\" - {{count}} result",
+    "searchResults_other": "Search \"{{query}}\" - {{count}} results",
+    "noVideosFound": "No videos found",
+    "verse": "Jesus Christ is the same yesterday, today, and forever",
+    "verseReference": "— Hebrews 13:8 —",
+    "welcomeText": "We warmly greet you in the precious Name of our Lord and Savior Jesus Christ. We are happy to welcome you to the Ottawa Christian Tabernacle website.",
+    "services": "Services",
+    "servicesDescription": "Our church offers a variety of services to meet different spiritual needs and schedules. Join us for worship and enriching community life.",
+    "sundayService": "Sunday Service",
+    "sundayServiceTime": "10:00 AM - 1:00 PM",
+    "sundayServiceDescription": "Weekly worship with preaching, praise, and fellowship.",
+    "fridayService": "Friday Service",
+    "fridayServiceTime": "7:00 PM - 9:00 PM",
+    "fridayServiceDescription": "Prayer and teaching service at the end of the week to deepen your faith.",
+    "onlineService": "Online Service",
+    "onlineServiceTime": "Tuesday and Thursday at 7:00 PM",
+    "onlineServiceDescription": "Join us online for a mid-week service that brings our Christian community together virtually.",
+    "sundaySchool": "Sunday School",
+    "sundaySchoolTime": "9:30 AM - 10:00 AM",
+    "sundaySchoolDescription": "Bible teaching adapted for all ages before the main service.",
+    "noVideosAvailable": "No videos available at the moment.",
+    "errorLoadingVideos": "Error loading videos.",
+    "errorCheckBackend": "Make sure the backend is started and the database contains videos.",
+    "viewAllVideos": "View all videos"
+  },
+  "videos": {
+    "allVideos": "All Sermons"
   },
   "preacher": {
     "videos": "Videos",
@@ -55,6 +86,10 @@
     "suggested": "Suggestions",
     "related": "Related videos",
     "churchInfo": "Ottawa Christian Tabernacle\nChurch of the end-time biblical message believers.\n\nOur program:\nTuesday and Thursday at 7:00 PM: Online sermon rebroadcast on our channel\nFriday at 7:00 PM: In-person service\nSunday at 10:00 AM: In-person service\n\nOur address: 323 Montréal Rd, Vanier, ON K1L 7C4\nIn the basement, using the side doors\n\nContacts:\nstudios.oct@gmail.com : For your requests, greetings, suggestions or others\nottawachristiantabernacle@gmail.com : For your tithes, offerings and voluntary donations"
+  },
+  "live": {
+    "title": "LIVE",
+    "bannerLabel": "Live video"
   },
   "youtube": {
     "title": "Sermons",
